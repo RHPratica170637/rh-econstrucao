@@ -1,0 +1,9 @@
+{
+  "name": "RH Econstrução",
+  "short_name": "RH Econstrução",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#1C2321",
+  "theme_color": "#1C2321",
+  "icons": []
+}

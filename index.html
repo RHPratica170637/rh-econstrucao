@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RH Econstrução — Triagem de Candidatos</title>
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#1C2321" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
+<style>
+  :root {
+    --bg: #1C2321;
+    --bg-elevated: #242D2A;
+    --surface: #2C3733;
+    --border: #3D4A44;
+    --text: #EDEAE0;
+    --text-dim: #9CA8A1;
+    --accent: #F2B705;
+    --accent-dim: #8A6D0A;
+    --safety-blue: #4A7C8C;
+    --danger: #C4573B;
+    --success: #6B9E5E;
+    --radius: 3px;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'IBM Plex Sans', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.5;
+  }
+  #root { min-height: 100vh; }
+
+  .app-shell { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--bg-elevated);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar-brand {
+    padding: 0 20px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .sidebar-brand .mark {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+    color: var(--accent);
+  }
+  .sidebar-brand .sub {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+  .nav-item {
+    padding: 11px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.02); }
+  .nav-item.active {
+    color: var(--text);
+    border-left-color: var(--accent);
+    background: rgba(242,183,5,0.06);
+  }
+  .nav-count {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    background: var(--surface);
+    padding: 1px 6px;
+    border-radius: var(--radius);
+  }
+  .sidebar-footer {
+    margin-top: auto;
+    padding: 16px 20px 0;
+    border-top: 1px solid var(--border);
+  }
+  .sidebar-footer .user {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .logout-btn {
+    background: none; border: none; color: var(--text-dim);
+    font-family: var(--font-body); font-size: 12px; cursor: pointer; padding: 0;
+    text-decoration: underline;
+  }
+
+  .main { flex: 1; padding: 32px 40px; max-width: 1180px; }
+
+  h1.page-title {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0 0 4px;
+  }
+  .page-sub { color: var(--text-dim); font-size: 14px; margin: 0 0 28px; }
+
+  .btn {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 13px;
+    padding: 9px 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+  }
+  .btn:hover { border-color: var(--text-dim); }
+  .btn-primary { background: var(--accent); color: #1C2321; border-color: var(--accent); }
+  .btn-primary:hover { background: #ffc72e; }
+  .btn-danger { background: transparent; color: var(--danger); border-color: var(--danger); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  input, textarea, select {
+    font-family: var(--font-body);
+    font-size: 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 12px;
+    border-radius: var(--radius);
+    width: 100%;
+  }
+  input:focus, textarea:focus, select:focus {
+    outline: none; border-color: var(--accent);
+  }
+  label { font-size: 12px; color: var(--text-dim); display: block; margin-bottom: 5px; font-weight: 500; }
+  .field { margin-bottom: 16px; }
+
+  .card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+
+  .login-wrap {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: var(--bg);
+  }
+  .login-card { width: 340px; }
+  .login-title { font-family: var(--font-display); font-size: 22px; font-weight: 700; margin-bottom: 2px; }
+  .login-sub { color: var(--text-dim); font-size: 13px; margin-bottom: 24px; }
+  .login-error { color: var(--danger); font-size: 13px; margin-top: 10px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th {
+    text-align: left; font-weight: 600; color: var(--text-dim);
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
+    padding: 8px 10px; border-bottom: 1px solid var(--border);
+  }
+  td { padding: 11px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:hover td { background: rgba(255,255,255,0.015); }
+
+  .tag {
+    display: inline-block; font-family: var(--font-mono); font-size: 11px;
+    padding: 2px 7px; border-radius: var(--radius); border: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+  .score-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-mono); font-weight: 500; font-size: 13px;
+    padding: 3px 9px; border-radius: 20px;
+  }
+  .score-alta { background: rgba(107,158,94,0.15); color: var(--success); }
+  .score-media { background: rgba(242,183,5,0.15); color: var(--accent); }
+  .score-baixa { background: rgba(196,87,59,0.15); color: var(--danger); }
+
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.55);
+    display: flex; align-items: flex-start; justify-content: center;
+    padding: 48px 20px; overflow-y: auto; z-index: 50;
+  }
+  .modal {
+    background: var(--bg-elevated); border: 1px solid var(--border);
+    border-radius: var(--radius); width: 560px; max-width: 100%; padding: 28px;
+  }
+  .modal-title { font-family: var(--font-display); font-size: 19px; font-weight: 700; margin: 0 0 20px; }
+
+  .upload-zone {
+    border: 1.5px dashed var(--border); border-radius: var(--radius);
+    padding: 32px 20px; text-align: center; cursor: pointer; color: var(--text-dim);
+    font-size: 13px;
+  }
+  .upload-zone:hover { border-color: var(--accent); color: var(--text); }
+  .upload-zone.has-file { border-color: var(--success); border-style: solid; color: var(--text); }
+
+  .kanban { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 12px; }
+  .kanban-col { min-width: 240px; flex-shrink: 0; }
+  .kanban-col-head {
+    font-size: 12px; font-weight: 600; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.03em;
+    padding: 0 4px 10px; display: flex; justify-content: space-between;
+  }
+  .kanban-card {
+    background: var(--bg-elevated); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px; margin-bottom: 10px;
+  }
+  .kanban-card .name { font-weight: 600; font-size: 13.5px; margin-bottom: 3px; }
+  .kanban-card .vaga { font-size: 12px; color: var(--text-dim); margin-bottom: 8px; }
+  .kanban-card-actions { display: flex; gap: 6px; margin-top: 8px; }
+  .kanban-card-actions button {
+    font-size: 11px; padding: 4px 8px; flex: 1;
+  }
+
+  .empty-state {
+    text-align: center; padding: 60px 20px; color: var(--text-dim);
+  }
+  .empty-state .title { color: var(--text); font-weight: 600; margin-bottom: 6px; font-size: 15px; }
+
+  .rank-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px; border: 1px solid var(--border); border-radius: var(--radius);
+    margin-bottom: 8px;
+  }
+  .rank-row.selected { border-color: var(--accent); background: rgba(242,183,5,0.05); }
+  .rank-vaga { font-weight: 600; font-size: 13.5px; }
+  .rank-reason { font-size: 12px; color: var(--text-dim); margin-top: 2px; max-width: 340px; }
+
+  .toast {
+    position: fixed; bottom: 20px; right: 20px; background: var(--bg-elevated);
+    border: 1px solid var(--border); border-left: 3px solid var(--accent);
+    padding: 12px 16px; border-radius: var(--radius); font-size: 13px; z-index: 100;
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useCallback, useRef } = React;
+
+/* =========================================================
+   CONFIG — preencher assim que o projeto Supabase existir
+   ========================================================= */
+const SUPABASE_URL = "https://gypdrqeingxqkseacvjx.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5cGRycWVpbmd4cWtzZWFjdmp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwNDQ1ODIsImV4cCI6MjEwNDYyMDU4Mn0.Zuh8unxfcH1HmaIZxriJxt6AqjPuCNCLww5KBYAothQ";
+const supabase = (SUPABASE_URL.startsWith("http"))
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+const ETAPAS = [
+  { id: "recebido", label: "Recebido" },
+  { id: "triagem", label: "Triagem" },
+  { id: "entrevista_rh", label: "Entrevista RH" },
+  { id: "entrevista_gerente", label: "Entrevista Gerente" },
+  // "verificacao_referencias" existe no schema mas fica fora do fluxo padrão por enquanto
+  { id: "exame_admissional", label: "Exame Admissional" },
+  { id: "aprovado", label: "Aprovado" },
+];
+const ETAPA_REPROVADO = "reprovado";
+
+/* =========================================================
+   Utilitários
+   ========================================================= */
+async function sha256(text) {
+  const enc = new TextEncoder().encode(text);
+  const buf = await crypto.subtle.digest("SHA-256", enc);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+function scoreBand(score) {
+  if (score >= 75) return "alta";
+  if (score >= 50) return "media";
+  return "baixa";
+}
+
+// Extrai texto de PDF usando pdf.js
+async function extractPdfText(file) {
+  const buf = await file.arrayBuffer();
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  let text = "";
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    text += content.items.map(it => it.str).join(" ") + "\n";
+  }
+  return text.trim();
+}
+
+// Extrai texto de DOCX usando mammoth
+async function extractDocxText(file) {
+  const buf = await file.arrayBuffer();
+  const result = await mammoth.extractRawText({ arrayBuffer: buf });
+  return result.value.trim();
+}
+
+async function extractResumeText(file) {
+  const name = file.name.toLowerCase();
+  if (name.endsWith(".pdf")) return extractPdfText(file);
+  if (name.endsWith(".docx")) return extractDocxText(file);
+  throw new Error("Formato não suportado. Envie um PDF ou um .docx.");
+}
+
+// Chama a Edge Function que faz a comparação com IA.
+// Até o Supabase estar plugado, cai num modo de simulação local (aviso visível).
+async function scoreCandidateAgainstVagas(curriculoTexto, vagas) {
+  if (supabase) {
+    const { data, error } = await supabase.functions.invoke("triagem-ia", {
+      body: { curriculo: curriculoTexto, vagas: vagas.map(v => ({ id: v.id, titulo: v.titulo, descricao: v.descricao, requisitos: v.requisitos })) },
+    });
+    if (error) throw error;
+    return data.resultados; // [{ vaga_id, score, pontos_fortes, pontos_fracos, justificativa }]
+  }
+  // Modo simulação (sem backend ainda) — só pra você ver a interface funcionando
+  return vagas.map(v => ({
+    vaga_id: v.id,
+    score: Math.floor(Math.random() * 60) + 30,
+    pontos_fortes: ["(simulado) conecte o Supabase para análise real"],
+    pontos_fracos: ["(simulado)"],
+    justificativa: "Resultado de exemplo — a Edge Function de IA ainda não está conectada.",
+  })).sort((a, b) => b.score - a.score);
+}
+
+/* =========================================================
+   Tela de Login
+   ========================================================= */
+function LoginScreen({ onLogin }) {
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [erro, setErro] = useState("");
+  const [carregando, setCarregando] = useState(false);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setErro("");
+    if (!supabase) { setErro("Backend ainda não conectado (Supabase pendente)."); return; }
+    setCarregando(true);
+    try {
+      const hash = await sha256(senha);
+      const { data, error } = await supabase
+        .from("usuarios")
+        .select("id, nome, email, papel")
+        .eq("email", email.trim().toLowerCase())
+        .eq("senha_hash", hash)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) { setErro("E-mail ou senha incorretos."); return; }
+      localStorage.setItem("rh_econstrucao_user", JSON.stringify(data));
+      onLogin(data);
+    } catch (err) {
+      setErro("Erro ao entrar: " + err.message);
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  return (
+    <div className="login-wrap">
+      <div className="card login-card">
+        <div className="login-title">RH Econstrução</div>
+        <div className="login-sub">Triagem e acompanhamento de candidatos</div>
+        <form onSubmit={handleSubmit}>
+          <div className="field">
+            <label>E-mail</label>
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)} required autoFocus />
+          </div>
+          <div className="field">
+            <label>Senha</label>
+            <input type="password" value={senha} onChange={e => setSenha(e.target.value)} required />
+          </div>
+          <button className="btn btn-primary" style={{ width: "100%" }} disabled={carregando}>
+            {carregando ? "Entrando..." : "Entrar"}
+          </button>
+          {erro && <div className="login-error">{erro}</div>}
+        </form>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   Modal genérico
+   ========================================================= */
+function Modal({ title, onClose, children }) {
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
+        <div className="modal-title">{title}</div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   Vagas
+   ========================================================= */
+function VagasView({ vagas, onRefresh, showToast }) {
+  const [modalAberto, setModalAberto] = useState(false);
+  const [editando, setEditando] = useState(null);
+  const [form, setForm] = useState({ titulo: "", descricao: "", requisitos: "", localizacao: "", salario: "", status: "aberta" });
+
+  function abrirNovo() {
+    setEditando(null);
+    setForm({ titulo: "", descricao: "", requisitos: "", localizacao: "", salario: "", status: "aberta" });
+    setModalAberto(true);
+  }
+  function abrirEdicao(v) {
+    setEditando(v);
+    setForm({ titulo: v.titulo, descricao: v.descricao || "", requisitos: v.requisitos || "", localizacao: v.localizacao || "", salario: v.salario || "", status: v.status });
+    setModalAberto(true);
+  }
+
+  async function salvar(e) {
+    e.preventDefault();
+    if (!supabase) { showToast("Backend ainda não conectado."); return; }
+    if (editando) {
+      await supabase.from("vagas").update(form).eq("id", editando.id);
+      showToast("Vaga atualizada.");
+    } else {
+      await supabase.from("vagas").insert(form);
+      showToast("Vaga cadastrada.");
+    }
+    setModalAberto(false);
+    onRefresh();
+  }
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div>
+          <h1 className="page-title">Vagas</h1>
+          <p className="page-sub">Descrição e requisitos usados pela triagem automática.</p>
+        </div>
+        <button className="btn btn-primary" onClick={abrirNovo}>+ Nova vaga</button>
+      </div>
+
+      {vagas.length === 0 ? (
+        <div className="empty-state card">
+          <div className="title">Nenhuma vaga cadastrada</div>
+          <div>Cadastre a primeira vaga para começar a triar candidatos.</div>
+        </div>
+      ) : (
+        <div className="card" style={{ padding: 0 }}>
+          <table>
+            <thead>
+              <tr><th>Título</th><th>Local</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody>
+              {vagas.map(v => (
+                <tr key={v.id}>
+                  <td>{v.titulo}</td>
+                  <td>{v.localizacao || "—"}</td>
+                  <td><span className="tag">{v.status}</span></td>
+                  <td style={{ textAlign: "right" }}>
+                    <button className="btn" onClick={() => abrirEdicao(v)}>Editar</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {modalAberto && (
+        <Modal title={editando ? "Editar vaga" : "Nova vaga"} onClose={() => setModalAberto(false)}>
+          <form onSubmit={salvar}>
+            <div className="field">
+              <label>Título</label>
+              <input value={form.titulo} onChange={e => setForm({ ...form, titulo: e.target.value })} required />
+            </div>
+            <div className="field">
+              <label>Descrição das atividades</label>
+              <textarea rows="3" value={form.descricao} onChange={e => setForm({ ...form, descricao: e.target.value })} />
+            </div>
+            <div className="field">
+              <label>Requisitos (o que a IA vai comparar com o currículo)</label>
+              <textarea rows="4" value={form.requisitos} onChange={e => setForm({ ...form, requisitos: e.target.value })} placeholder="Ex: experiência com faturamento, excel intermediário, 2º grau completo..." />
+            </div>
+            <div className="field">
+              <label>Localização</label>
+              <input value={form.localizacao} onChange={e => setForm({ ...form, localizacao: e.target.value })} />
+            </div>
+            <div className="field">
+              <label>Status</label>
+              <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
+                <option value="aberta">Aberta</option>
+                <option value="fechada">Fechada</option>
+              </select>
+            </div>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 20 }}>
+              <button type="button" className="btn" onClick={() => setModalAberto(false)}>Cancelar</button>
+              <button type="submit" className="btn btn-primary">Salvar</button>
+            </div>
+          </form>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+/* =========================================================
+   Novo Candidato (upload + triagem IA)
+   ========================================================= */
+function NovoCandidatoModal({ vagas, onClose, onSalvo, showToast }) {
+  const [nome, setNome] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [email, setEmail] = useState("");
+  const [arquivo, setArquivo] = useState(null);
+  const [textoExtraido, setTextoExtraido] = useState("");
+  const [status, setStatus] = useState("form"); // form | extraindo | analisando | resultado
+  const [ranking, setRanking] = useState([]);
+  const [vagaEscolhida, setVagaEscolhida] = useState(null);
+  const fileInputRef = useRef(null);
+
+  async function handleFile(file) {
+    setArquivo(file);
+    setStatus("extraindo");
+    try {
+      const texto = await extractResumeText(file);
+      setTextoExtraido(texto);
+      setStatus("form");
+    } catch (err) {
+      showToast("Erro ao ler o arquivo: " + err.message);
+      setArquivo(null);
+      setStatus("form");
+    }
+  }
+
+  async function analisar() {
+    const vagasAbertas = vagas.filter(v => v.status === "aberta");
+    if (vagasAbertas.length === 0) { showToast("Não há vagas abertas para comparar."); return; }
+    setStatus("analisando");
+    try {
+      const resultados = await scoreCandidateAgainstVagas(textoExtraido, vagasAbertas);
+      const enriched = resultados.map(r => ({ ...r, vaga: vagasAbertas.find(v => v.id === r.vaga_id) })).sort((a, b) => b.score - a.score);
+      setRanking(enriched);
+      setVagaEscolhida(enriched[0]?.vaga_id || null);
+      setStatus("resultado");
+    } catch (err) {
+      showToast("Erro na análise: " + err.message);
+      setStatus("form");
+    }
+  }
+
+  async function salvarCandidato() {
+    if (!supabase) { showToast("Backend ainda não conectado."); return; }
+    const escolha = ranking.find(r => r.vaga_id === vagaEscolhida);
+    const { error } = await supabase.from("candidatos").insert({
+      nome, telefone, email,
+      texto_curriculo: textoExtraido,
+      vaga_id: vagaEscolhida,
+      score_ia: escolha ? escolha.score : null,
+      pontos_fortes: escolha ? escolha.pontos_fortes : null,
+      pontos_fracos: escolha ? escolha.pontos_fracos : null,
+      etapa_atual: "triagem",
+    });
+    if (error) { showToast("Erro ao salvar: " + error.message); return; }
+    showToast("Candidato cadastrado.");
+    onSalvo();
+    onClose();
+  }
+
+  return (
+    <Modal title="Novo candidato" onClose={onClose}>
+      {status !== "resultado" ? (
+        <div>
+          <div className="field">
+            <label>Nome completo</label>
+            <input value={nome} onChange={e => setNome(e.target.value)} required />
+          </div>
+          <div className="field">
+            <label>Telefone</label>
+            <input value={telefone} onChange={e => setTelefone(e.target.value)} />
+          </div>
+          <div className="field">
+            <label>E-mail</label>
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)} />
+          </div>
+          <div className="field">
+            <label>Currículo (PDF ou Word)</label>
+            <div
+              className={"upload-zone" + (arquivo ? " has-file" : "")}
+              onClick={() => fileInputRef.current.click()}
+            >
+              {status === "extraindo" ? "Lendo arquivo..." : arquivo ? `✓ ${arquivo.name} (${textoExtraido.length} caracteres lidos)` : "Clique para selecionar o arquivo (.pdf ou .docx)"}
+            </div>
+            <input ref={fileInputRef} type="file" accept=".pdf,.docx" style={{ display: "none" }}
+              onChange={e => e.target.files[0] && handleFile(e.target.files[0])} />
+          </div>
+          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 20 }}>
+            <button className="btn" onClick={onClose}>Cancelar</button>
+            <button
+              className="btn btn-primary"
+              disabled={!nome || !textoExtraido || status === "analisando"}
+              onClick={analisar}
+            >
+              {status === "analisando" ? "Analisando com IA..." : "Analisar aderência às vagas"}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <p style={{ fontSize: 13, color: "var(--text-dim)", marginTop: 0 }}>
+            Aderência de {nome} às vagas abertas. Escolha para qual vaga encaminhar.
+          </p>
+          {ranking.map(r => (
+            <div
+              key={r.vaga_id}
+              className={"rank-row" + (vagaEscolhida === r.vaga_id ? " selected" : "")}
+              onClick={() => setVagaEscolhida(r.vaga_id)}
+              style={{ cursor: "pointer" }}
+            >
+              <div>
+                <div className="rank-vaga">{r.vaga?.titulo}</div>
+                <div className="rank-reason">{r.justificativa}</div>
+              </div>
+              <span className={"score-pill score-" + scoreBand(r.score)}>{r.score}%</span>
+            </div>
+          ))}
+          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 20 }}>
+            <button className="btn" onClick={() => setStatus("form")}>Voltar</button>
+            <button className="btn btn-primary" onClick={salvarCandidato}>
+              Confirmar e enviar para Triagem
+            </button>
+          </div>
+        </div>
+      )}
+    </Modal>
+  );
+}
+
+/* =========================================================
+   Pipeline (Kanban)
+   ========================================================= */
+function PipelineView({ candidatos, vagas, onRefresh, showToast }) {
+  const [modalAberto, setModalAberto] = useState(false);
+
+  async function moverEtapa(candidato, novaEtapa) {
+    if (!supabase) { showToast("Backend ainda não conectado."); return; }
+    await supabase.from("candidatos").update({ etapa_atual: novaEtapa }).eq("id", candidato.id);
+    onRefresh();
+  }
+
+  function vagaTitulo(id) {
+    return vagas.find(v => v.id === id)?.titulo || "—";
+  }
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div>
+          <h1 className="page-title">Pipeline</h1>
+          <p className="page-sub">Acompanhamento dos candidatos etapa a etapa.</p>
+        </div>
+        <button className="btn btn-primary" onClick={() => setModalAberto(true)}>+ Novo candidato</button>
+      </div>
+
+      <div className="kanban">
+        {ETAPAS.map((etapa, idx) => {
+          const nesta = candidatos.filter(c => c.etapa_atual === etapa.id);
+          const proxima = ETAPAS[idx + 1];
+          return (
+            <div className="kanban-col" key={etapa.id}>
+              <div className="kanban-col-head">
+                <span>{etapa.label}</span>
+                <span>{nesta.length}</span>
+              </div>
+              {nesta.map(c => (
+                <div className="kanban-card" key={c.id}>
+                  <div className="name">{c.nome}</div>
+                  <div className="vaga">{vagaTitulo(c.vaga_id)}</div>
+                  {c.score_ia != null && (
+                    <span className={"score-pill score-" + scoreBand(c.score_ia)}>{c.score_ia}% aderência</span>
+                  )}
+                  <div className="kanban-card-actions">
+                    <button className="btn btn-danger" onClick={() => moverEtapa(c, ETAPA_REPROVADO)}>Reprovar</button>
+                    {proxima && (
+                      <button className="btn btn-primary" onClick={() => moverEtapa(c, proxima.id)}>Avançar</button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        })}
+      </div>
+
+      {modalAberto && (
+        <NovoCandidatoModal
+          vagas={vagas}
+          onClose={() => setModalAberto(false)}
+          onSalvo={onRefresh}
+          showToast={showToast}
+        />
+      )}
+    </div>
+  );
+}
+
+/* =========================================================
+   App principal
+   ========================================================= */
+function App() {
+  const [usuario, setUsuario] = useState(() => {
+    const saved = localStorage.getItem("rh_econstrucao_user");
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [aba, setAba] = useState("pipeline");
+  const [vagas, setVagas] = useState([]);
+  const [candidatos, setCandidatos] = useState([]);
+  const [toastMsg, setToastMsg] = useState(null);
+
+  function showToast(msg) {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(null), 3500);
+  }
+
+  const carregarDados = useCallback(async () => {
+    if (!supabase) return;
+    const [{ data: v }, { data: c }] = await Promise.all([
+      supabase.from("vagas").select("*").order("created_at", { ascending: false }),
+      supabase.from("candidatos").select("*").order("created_at", { ascending: false }),
+    ]);
+    setVagas(v || []);
+    setCandidatos(c || []);
+  }, []);
+
+  useEffect(() => { if (usuario) carregarDados(); }, [usuario, carregarDados]);
+
+  if (!usuario) return <LoginScreen onLogin={setUsuario} />;
+
+  function logout() {
+    localStorage.removeItem("rh_econstrucao_user");
+    setUsuario(null);
+  }
+
+  return (
+    <div className="app-shell">
+      <div className="sidebar">
+        <div className="sidebar-brand">
+          <div className="mark">RH ECONSTRUÇÃO</div>
+          <div className="sub">triagem &amp; pipeline</div>
+        </div>
+        <div className={"nav-item" + (aba === "pipeline" ? " active" : "")} onClick={() => setAba("pipeline")}>
+          Pipeline <span className="nav-count">{candidatos.length}</span>
+        </div>
+        <div className={"nav-item" + (aba === "vagas" ? " active" : "")} onClick={() => setAba("vagas")}>
+          Vagas <span className="nav-count">{vagas.length}</span>
+        </div>
+        <div className="sidebar-footer">
+          <div className="user">{usuario.nome}</div>
+          <button className="logout-btn" onClick={logout}>Sair</button>
+        </div>
+      </div>
+      <div className="main">
+        {!supabase && (
+          <div className="card" style={{ marginBottom: 20, borderColor: "var(--accent)" }}>
+            <strong>Backend ainda não conectado.</strong> Preencha SUPABASE_URL e SUPABASE_ANON_KEY no topo do arquivo assim que o projeto existir.
+          </div>
+        )}
+        {aba === "pipeline" && (
+          <PipelineView candidatos={candidatos} vagas={vagas} onRefresh={carregarDados} showToast={showToast} />
+        )}
+        {aba === "vagas" && (
+          <VagasView vagas={vagas} onRefresh={carregarDados} showToast={showToast} />
+        )}
+      </div>
+      {toastMsg && <div className="toast">{toastMsg}</div>}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
