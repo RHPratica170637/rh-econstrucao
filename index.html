@@ -12,10 +12,9 @@
 
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
 <style>
   :root {
@@ -259,27 +258,42 @@
 <body>
 <div id="root"></div>
 
-<script type="text/babel" data-presets="react">
-const { useState, useEffect, useCallback, useRef } = React;
+<script>
+import { jsxDEV as _jsxDEV } from "react/jsx-dev-runtime";
+const {
+  useState,
+  useEffect,
+  useCallback,
+  useRef
+} = React;
 
 /* =========================================================
    CONFIG — preencher assim que o projeto Supabase existir
    ========================================================= */
-const SUPABASE_URL = "https://gypdrqeingxqkseacvjx.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5cGRycWVpbmd4cWtzZWFjdmp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwNDQ1ODIsImV4cCI6MjEwNDYyMDU4Mn0.Zuh8unxfcH1HmaIZxriJxt6AqjPuCNCLww5KBYAothQ";
-const supabase = (SUPABASE_URL.startsWith("http"))
-  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-  : null;
-
-const ETAPAS = [
-  { id: "recebido", label: "Recebido" },
-  { id: "triagem", label: "Triagem" },
-  { id: "entrevista_rh", label: "Entrevista RH" },
-  { id: "entrevista_gerente", label: "Entrevista Gerente" },
-  // "verificacao_referencias" existe no schema mas fica fora do fluxo padrão por enquanto
-  { id: "exame_admissional", label: "Exame Admissional" },
-  { id: "aprovado", label: "Aprovado" },
-];
+const SUPABASE_URL = "COLOQUE_A_URL_DO_PROJETO_AQUI";
+const SUPABASE_ANON_KEY = "COLOQUE_A_ANON_KEY_AQUI";
+const supabase = SUPABASE_URL.startsWith("http") ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+const ETAPAS = [{
+  id: "recebido",
+  label: "Recebido"
+}, {
+  id: "triagem",
+  label: "Triagem"
+}, {
+  id: "entrevista_rh",
+  label: "Entrevista RH"
+}, {
+  id: "entrevista_gerente",
+  label: "Entrevista Gerente"
+},
+// "verificacao_referencias" existe no schema mas fica fora do fluxo padrão por enquanto
+{
+  id: "exame_admissional",
+  label: "Exame Admissional"
+}, {
+  id: "aprovado",
+  label: "Aprovado"
+}];
 const ETAPA_REPROVADO = "reprovado";
 
 /* =========================================================
@@ -290,7 +304,6 @@ async function sha256(text) {
   const buf = await crypto.subtle.digest("SHA-256", enc);
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
 }
-
 function scoreBand(score) {
   if (score >= 75) return "alta";
   if (score >= 50) return "media";
@@ -301,12 +314,15 @@ function scoreBand(score) {
 async function extractPdfText(file) {
   const buf = await file.arrayBuffer();
   pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  const pdf = await pdfjsLib.getDocument({
+    data: buf
+  }).promise;
   let text = "";
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i);
     const content = await page.getTextContent();
-    text += content.items.map(it => it.str).join(" ") + "\n";
+    text += content.items.map(it => it.str).join(" ") + "
+";
   }
   return text.trim();
 }
@@ -314,10 +330,11 @@ async function extractPdfText(file) {
 // Extrai texto de DOCX usando mammoth
 async function extractDocxText(file) {
   const buf = await file.arrayBuffer();
-  const result = await mammoth.extractRawText({ arrayBuffer: buf });
+  const result = await mammoth.extractRawText({
+    arrayBuffer: buf
+  });
   return result.value.trim();
 }
-
 async function extractResumeText(file) {
   const name = file.name.toLowerCase();
   if (name.endsWith(".pdf")) return extractPdfText(file);
@@ -329,8 +346,19 @@ async function extractResumeText(file) {
 // Até o Supabase estar plugado, cai num modo de simulação local (aviso visível).
 async function scoreCandidateAgainstVagas(curriculoTexto, vagas) {
   if (supabase) {
-    const { data, error } = await supabase.functions.invoke("triagem-ia", {
-      body: { curriculo: curriculoTexto, vagas: vagas.map(v => ({ id: v.id, titulo: v.titulo, descricao: v.descricao, requisitos: v.requisitos })) },
+    const {
+      data,
+      error
+    } = await supabase.functions.invoke("triagem-ia", {
+      body: {
+        curriculo: curriculoTexto,
+        vagas: vagas.map(v => ({
+          id: v.id,
+          titulo: v.titulo,
+          descricao: v.descricao,
+          requisitos: v.requisitos
+        }))
+      }
     });
     if (error) throw error;
     return data.resultados; // [{ vaga_id, score, pontos_fortes, pontos_fracos, justificativa }]
@@ -341,34 +369,39 @@ async function scoreCandidateAgainstVagas(curriculoTexto, vagas) {
     score: Math.floor(Math.random() * 60) + 30,
     pontos_fortes: ["(simulado) conecte o Supabase para análise real"],
     pontos_fracos: ["(simulado)"],
-    justificativa: "Resultado de exemplo — a Edge Function de IA ainda não está conectada.",
+    justificativa: "Resultado de exemplo — a Edge Function de IA ainda não está conectada."
   })).sort((a, b) => b.score - a.score);
 }
 
 /* =========================================================
    Tela de Login
    ========================================================= */
-function LoginScreen({ onLogin }) {
+function LoginScreen({
+  onLogin
+}) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
-
   async function handleSubmit(e) {
     e.preventDefault();
     setErro("");
-    if (!supabase) { setErro("Backend ainda não conectado (Supabase pendente)."); return; }
+    if (!supabase) {
+      setErro("Backend ainda não conectado (Supabase pendente).");
+      return;
+    }
     setCarregando(true);
     try {
       const hash = await sha256(senha);
-      const { data, error } = await supabase
-        .from("usuarios")
-        .select("id, nome, email, papel")
-        .eq("email", email.trim().toLowerCase())
-        .eq("senha_hash", hash)
-        .maybeSingle();
+      const {
+        data,
+        error
+      } = await supabase.from("usuarios").select("id, nome, email, papel").eq("email", email.trim().toLowerCase()).eq("senha_hash", hash).maybeSingle();
       if (error) throw error;
-      if (!data) { setErro("E-mail ou senha incorretos."); return; }
+      if (!data) {
+        setErro("E-mail ou senha incorretos.");
+        return;
+      }
       localStorage.setItem("rh_econstrucao_user", JSON.stringify(data));
       onLogin(data);
     } catch (err) {
@@ -377,67 +410,125 @@ function LoginScreen({ onLogin }) {
       setCarregando(false);
     }
   }
-
-  return (
-    <div className="login-wrap">
-      <div className="card login-card">
-        <div className="login-title">RH Econstrução</div>
-        <div className="login-sub">Triagem e acompanhamento de candidatos</div>
-        <form onSubmit={handleSubmit}>
-          <div className="field">
-            <label>E-mail</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} required autoFocus />
-          </div>
-          <div className="field">
-            <label>Senha</label>
-            <input type="password" value={senha} onChange={e => setSenha(e.target.value)} required />
-          </div>
-          <button className="btn btn-primary" style={{ width: "100%" }} disabled={carregando}>
-            {carregando ? "Entrando..." : "Entrar"}
-          </button>
-          {erro && <div className="login-error">{erro}</div>}
-        </form>
-      </div>
-    </div>
-  );
+  return /*#__PURE__*/_jsxDEV("div", {
+    className: "login-wrap",
+    children: /*#__PURE__*/_jsxDEV("div", {
+      className: "card login-card",
+      children: [/*#__PURE__*/_jsxDEV("div", {
+        className: "login-title",
+        children: "RH Econstrução"
+      }, void 0, false), /*#__PURE__*/_jsxDEV("div", {
+        className: "login-sub",
+        children: "Triagem e acompanhamento de candidatos"
+      }, void 0, false), /*#__PURE__*/_jsxDEV("form", {
+        onSubmit: handleSubmit,
+        children: [/*#__PURE__*/_jsxDEV("div", {
+          className: "field",
+          children: [/*#__PURE__*/_jsxDEV("label", {
+            children: "E-mail"
+          }, void 0, false), /*#__PURE__*/_jsxDEV("input", {
+            type: "email",
+            value: email,
+            onChange: e => setEmail(e.target.value),
+            required: true,
+            autoFocus: true
+          }, void 0, false)]
+        }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
+          className: "field",
+          children: [/*#__PURE__*/_jsxDEV("label", {
+            children: "Senha"
+          }, void 0, false), /*#__PURE__*/_jsxDEV("input", {
+            type: "password",
+            value: senha,
+            onChange: e => setSenha(e.target.value),
+            required: true
+          }, void 0, false)]
+        }, void 0, true), /*#__PURE__*/_jsxDEV("button", {
+          className: "btn btn-primary",
+          style: {
+            width: "100%"
+          },
+          disabled: carregando,
+          children: carregando ? "Entrando..." : "Entrar"
+        }, void 0, false), erro && /*#__PURE__*/_jsxDEV("div", {
+          className: "login-error",
+          children: erro
+        }, void 0, false)]
+      }, void 0, true)]
+    }, void 0, true)
+  }, void 0, false);
 }
 
 /* =========================================================
    Modal genérico
    ========================================================= */
-function Modal({ title, onClose, children }) {
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={e => e.stopPropagation()}>
-        <div className="modal-title">{title}</div>
-        {children}
-      </div>
-    </div>
-  );
+function Modal({
+  title,
+  onClose,
+  children
+}) {
+  return /*#__PURE__*/_jsxDEV("div", {
+    className: "modal-overlay",
+    onClick: onClose,
+    children: /*#__PURE__*/_jsxDEV("div", {
+      className: "modal",
+      onClick: e => e.stopPropagation(),
+      children: [/*#__PURE__*/_jsxDEV("div", {
+        className: "modal-title",
+        children: title
+      }, void 0, false), children]
+    }, void 0, true)
+  }, void 0, false);
 }
 
 /* =========================================================
    Vagas
    ========================================================= */
-function VagasView({ vagas, onRefresh, showToast }) {
+function VagasView({
+  vagas,
+  onRefresh,
+  showToast
+}) {
   const [modalAberto, setModalAberto] = useState(false);
   const [editando, setEditando] = useState(null);
-  const [form, setForm] = useState({ titulo: "", descricao: "", requisitos: "", localizacao: "", salario: "", status: "aberta" });
-
+  const [form, setForm] = useState({
+    titulo: "",
+    descricao: "",
+    requisitos: "",
+    localizacao: "",
+    salario: "",
+    status: "aberta"
+  });
   function abrirNovo() {
     setEditando(null);
-    setForm({ titulo: "", descricao: "", requisitos: "", localizacao: "", salario: "", status: "aberta" });
+    setForm({
+      titulo: "",
+      descricao: "",
+      requisitos: "",
+      localizacao: "",
+      salario: "",
+      status: "aberta"
+    });
     setModalAberto(true);
   }
   function abrirEdicao(v) {
     setEditando(v);
-    setForm({ titulo: v.titulo, descricao: v.descricao || "", requisitos: v.requisitos || "", localizacao: v.localizacao || "", salario: v.salario || "", status: v.status });
+    setForm({
+      titulo: v.titulo,
+      descricao: v.descricao || "",
+      requisitos: v.requisitos || "",
+      localizacao: v.localizacao || "",
+      salario: v.salario || "",
+      status: v.status
+    });
     setModalAberto(true);
   }
-
   async function salvar(e) {
     e.preventDefault();
-    if (!supabase) { showToast("Backend ainda não conectado."); return; }
+    if (!supabase) {
+      showToast("Backend ainda não conectado.");
+      return;
+    }
     if (editando) {
       await supabase.from("vagas").update(form).eq("id", editando.id);
       showToast("Vaga atualizada.");
@@ -448,85 +539,177 @@ function VagasView({ vagas, onRefresh, showToast }) {
     setModalAberto(false);
     onRefresh();
   }
-
-  return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-        <div>
-          <h1 className="page-title">Vagas</h1>
-          <p className="page-sub">Descrição e requisitos usados pela triagem automática.</p>
-        </div>
-        <button className="btn btn-primary" onClick={abrirNovo}>+ Nova vaga</button>
-      </div>
-
-      {vagas.length === 0 ? (
-        <div className="empty-state card">
-          <div className="title">Nenhuma vaga cadastrada</div>
-          <div>Cadastre a primeira vaga para começar a triar candidatos.</div>
-        </div>
-      ) : (
-        <div className="card" style={{ padding: 0 }}>
-          <table>
-            <thead>
-              <tr><th>Título</th><th>Local</th><th>Status</th><th></th></tr>
-            </thead>
-            <tbody>
-              {vagas.map(v => (
-                <tr key={v.id}>
-                  <td>{v.titulo}</td>
-                  <td>{v.localizacao || "—"}</td>
-                  <td><span className="tag">{v.status}</span></td>
-                  <td style={{ textAlign: "right" }}>
-                    <button className="btn" onClick={() => abrirEdicao(v)}>Editar</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {modalAberto && (
-        <Modal title={editando ? "Editar vaga" : "Nova vaga"} onClose={() => setModalAberto(false)}>
-          <form onSubmit={salvar}>
-            <div className="field">
-              <label>Título</label>
-              <input value={form.titulo} onChange={e => setForm({ ...form, titulo: e.target.value })} required />
-            </div>
-            <div className="field">
-              <label>Descrição das atividades</label>
-              <textarea rows="3" value={form.descricao} onChange={e => setForm({ ...form, descricao: e.target.value })} />
-            </div>
-            <div className="field">
-              <label>Requisitos (o que a IA vai comparar com o currículo)</label>
-              <textarea rows="4" value={form.requisitos} onChange={e => setForm({ ...form, requisitos: e.target.value })} placeholder="Ex: experiência com faturamento, excel intermediário, 2º grau completo..." />
-            </div>
-            <div className="field">
-              <label>Localização</label>
-              <input value={form.localizacao} onChange={e => setForm({ ...form, localizacao: e.target.value })} />
-            </div>
-            <div className="field">
-              <label>Status</label>
-              <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })}>
-                <option value="aberta">Aberta</option>
-                <option value="fechada">Fechada</option>
-              </select>
-            </div>
-            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 20 }}>
-              <button type="button" className="btn" onClick={() => setModalAberto(false)}>Cancelar</button>
-              <button type="submit" className="btn btn-primary">Salvar</button>
-            </div>
-          </form>
-        </Modal>
-      )}
-    </div>
-  );
+  return /*#__PURE__*/_jsxDEV("div", {
+    children: [/*#__PURE__*/_jsxDEV("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "flex-start"
+      },
+      children: [/*#__PURE__*/_jsxDEV("div", {
+        children: [/*#__PURE__*/_jsxDEV("h1", {
+          className: "page-title",
+          children: "Vagas"
+        }, void 0, false), /*#__PURE__*/_jsxDEV("p", {
+          className: "page-sub",
+          children: "Descrição e requisitos usados pela triagem automática."
+        }, void 0, false)]
+      }, void 0, true), /*#__PURE__*/_jsxDEV("button", {
+        className: "btn btn-primary",
+        onClick: abrirNovo,
+        children: "+ Nova vaga"
+      }, void 0, false)]
+    }, void 0, true), vagas.length === 0 ? /*#__PURE__*/_jsxDEV("div", {
+      className: "empty-state card",
+      children: [/*#__PURE__*/_jsxDEV("div", {
+        className: "title",
+        children: "Nenhuma vaga cadastrada"
+      }, void 0, false), /*#__PURE__*/_jsxDEV("div", {
+        children: "Cadastre a primeira vaga para começar a triar candidatos."
+      }, void 0, false)]
+    }, void 0, true) : /*#__PURE__*/_jsxDEV("div", {
+      className: "card",
+      style: {
+        padding: 0
+      },
+      children: /*#__PURE__*/_jsxDEV("table", {
+        children: [/*#__PURE__*/_jsxDEV("thead", {
+          children: /*#__PURE__*/_jsxDEV("tr", {
+            children: [/*#__PURE__*/_jsxDEV("th", {
+              children: "Título"
+            }, void 0, false), /*#__PURE__*/_jsxDEV("th", {
+              children: "Local"
+            }, void 0, false), /*#__PURE__*/_jsxDEV("th", {
+              children: "Status"
+            }, void 0, false), /*#__PURE__*/_jsxDEV("th", {}, void 0, false)]
+          }, void 0, true)
+        }, void 0, false), /*#__PURE__*/_jsxDEV("tbody", {
+          children: vagas.map(v => /*#__PURE__*/_jsxDEV("tr", {
+            children: [/*#__PURE__*/_jsxDEV("td", {
+              children: v.titulo
+            }, void 0, false), /*#__PURE__*/_jsxDEV("td", {
+              children: v.localizacao || "—"
+            }, void 0, false), /*#__PURE__*/_jsxDEV("td", {
+              children: /*#__PURE__*/_jsxDEV("span", {
+                className: "tag",
+                children: v.status
+              }, void 0, false)
+            }, void 0, false), /*#__PURE__*/_jsxDEV("td", {
+              style: {
+                textAlign: "right"
+              },
+              children: /*#__PURE__*/_jsxDEV("button", {
+                className: "btn",
+                onClick: () => abrirEdicao(v),
+                children: "Editar"
+              }, void 0, false)
+            }, void 0, false)]
+          }, v.id, true))
+        }, void 0, false)]
+      }, void 0, true)
+    }, void 0, false), modalAberto && /*#__PURE__*/_jsxDEV(Modal, {
+      title: editando ? "Editar vaga" : "Nova vaga",
+      onClose: () => setModalAberto(false),
+      children: /*#__PURE__*/_jsxDEV("form", {
+        onSubmit: salvar,
+        children: [/*#__PURE__*/_jsxDEV("div", {
+          className: "field",
+          children: [/*#__PURE__*/_jsxDEV("label", {
+            children: "Título"
+          }, void 0, false), /*#__PURE__*/_jsxDEV("input", {
+            value: form.titulo,
+            onChange: e => setForm({
+              ...form,
+              titulo: e.target.value
+            }),
+            required: true
+          }, void 0, false)]
+        }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
+          className: "field",
+          children: [/*#__PURE__*/_jsxDEV("label", {
+            children: "Descrição das atividades"
+          }, void 0, false), /*#__PURE__*/_jsxDEV("textarea", {
+            rows: "3",
+            value: form.descricao,
+            onChange: e => setForm({
+              ...form,
+              descricao: e.target.value
+            })
+          }, void 0, false)]
+        }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
+          className: "field",
+          children: [/*#__PURE__*/_jsxDEV("label", {
+            children: "Requisitos (o que a IA vai comparar com o currículo)"
+          }, void 0, false), /*#__PURE__*/_jsxDEV("textarea", {
+            rows: "4",
+            value: form.requisitos,
+            onChange: e => setForm({
+              ...form,
+              requisitos: e.target.value
+            }),
+            placeholder: "Ex: experiência com faturamento, excel intermediário, 2º grau completo..."
+          }, void 0, false)]
+        }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
+          className: "field",
+          children: [/*#__PURE__*/_jsxDEV("label", {
+            children: "Localização"
+          }, void 0, false), /*#__PURE__*/_jsxDEV("input", {
+            value: form.localizacao,
+            onChange: e => setForm({
+              ...form,
+              localizacao: e.target.value
+            })
+          }, void 0, false)]
+        }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
+          className: "field",
+          children: [/*#__PURE__*/_jsxDEV("label", {
+            children: "Status"
+          }, void 0, false), /*#__PURE__*/_jsxDEV("select", {
+            value: form.status,
+            onChange: e => setForm({
+              ...form,
+              status: e.target.value
+            }),
+            children: [/*#__PURE__*/_jsxDEV("option", {
+              value: "aberta",
+              children: "Aberta"
+            }, void 0, false), /*#__PURE__*/_jsxDEV("option", {
+              value: "fechada",
+              children: "Fechada"
+            }, void 0, false)]
+          }, void 0, true)]
+        }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
+          style: {
+            display: "flex",
+            gap: 8,
+            justifyContent: "flex-end",
+            marginTop: 20
+          },
+          children: [/*#__PURE__*/_jsxDEV("button", {
+            type: "button",
+            className: "btn",
+            onClick: () => setModalAberto(false),
+            children: "Cancelar"
+          }, void 0, false), /*#__PURE__*/_jsxDEV("button", {
+            type: "submit",
+            className: "btn btn-primary",
+            children: "Salvar"
+          }, void 0, false)]
+        }, void 0, true)]
+      }, void 0, true)
+    }, void 0, false)]
+  }, void 0, true);
 }
 
 /* =========================================================
    Novo Candidato (upload + triagem IA)
    ========================================================= */
-function NovoCandidatoModal({ vagas, onClose, onSalvo, showToast }) {
+function NovoCandidatoModal({
+  vagas,
+  onClose,
+  onSalvo,
+  showToast
+}) {
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
   const [email, setEmail] = useState("");
@@ -536,7 +719,6 @@ function NovoCandidatoModal({ vagas, onClose, onSalvo, showToast }) {
   const [ranking, setRanking] = useState([]);
   const [vagaEscolhida, setVagaEscolhida] = useState(null);
   const fileInputRef = useRef(null);
-
   async function handleFile(file) {
     setArquivo(file);
     setStatus("extraindo");
@@ -550,14 +732,19 @@ function NovoCandidatoModal({ vagas, onClose, onSalvo, showToast }) {
       setStatus("form");
     }
   }
-
   async function analisar() {
     const vagasAbertas = vagas.filter(v => v.status === "aberta");
-    if (vagasAbertas.length === 0) { showToast("Não há vagas abertas para comparar."); return; }
+    if (vagasAbertas.length === 0) {
+      showToast("Não há vagas abertas para comparar.");
+      return;
+    }
     setStatus("analisando");
     try {
       const resultados = await scoreCandidateAgainstVagas(textoExtraido, vagasAbertas);
-      const enriched = resultados.map(r => ({ ...r, vaga: vagasAbertas.find(v => v.id === r.vaga_id) })).sort((a, b) => b.score - a.score);
+      const enriched = resultados.map(r => ({
+        ...r,
+        vaga: vagasAbertas.find(v => v.id === r.vaga_id)
+      })).sort((a, b) => b.score - a.score);
       setRanking(enriched);
       setVagaEscolhida(enriched[0]?.vaga_id || null);
       setStatus("resultado");
@@ -566,160 +753,235 @@ function NovoCandidatoModal({ vagas, onClose, onSalvo, showToast }) {
       setStatus("form");
     }
   }
-
   async function salvarCandidato() {
-    if (!supabase) { showToast("Backend ainda não conectado."); return; }
+    if (!supabase) {
+      showToast("Backend ainda não conectado.");
+      return;
+    }
     const escolha = ranking.find(r => r.vaga_id === vagaEscolhida);
-    const { error } = await supabase.from("candidatos").insert({
-      nome, telefone, email,
+    const {
+      error
+    } = await supabase.from("candidatos").insert({
+      nome,
+      telefone,
+      email,
       texto_curriculo: textoExtraido,
       vaga_id: vagaEscolhida,
       score_ia: escolha ? escolha.score : null,
       pontos_fortes: escolha ? escolha.pontos_fortes : null,
       pontos_fracos: escolha ? escolha.pontos_fracos : null,
-      etapa_atual: "triagem",
+      etapa_atual: "triagem"
     });
-    if (error) { showToast("Erro ao salvar: " + error.message); return; }
+    if (error) {
+      showToast("Erro ao salvar: " + error.message);
+      return;
+    }
     showToast("Candidato cadastrado.");
     onSalvo();
     onClose();
   }
-
-  return (
-    <Modal title="Novo candidato" onClose={onClose}>
-      {status !== "resultado" ? (
-        <div>
-          <div className="field">
-            <label>Nome completo</label>
-            <input value={nome} onChange={e => setNome(e.target.value)} required />
-          </div>
-          <div className="field">
-            <label>Telefone</label>
-            <input value={telefone} onChange={e => setTelefone(e.target.value)} />
-          </div>
-          <div className="field">
-            <label>E-mail</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} />
-          </div>
-          <div className="field">
-            <label>Currículo (PDF ou Word)</label>
-            <div
-              className={"upload-zone" + (arquivo ? " has-file" : "")}
-              onClick={() => fileInputRef.current.click()}
-            >
-              {status === "extraindo" ? "Lendo arquivo..." : arquivo ? `✓ ${arquivo.name} (${textoExtraido.length} caracteres lidos)` : "Clique para selecionar o arquivo (.pdf ou .docx)"}
-            </div>
-            <input ref={fileInputRef} type="file" accept=".pdf,.docx" style={{ display: "none" }}
-              onChange={e => e.target.files[0] && handleFile(e.target.files[0])} />
-          </div>
-          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 20 }}>
-            <button className="btn" onClick={onClose}>Cancelar</button>
-            <button
-              className="btn btn-primary"
-              disabled={!nome || !textoExtraido || status === "analisando"}
-              onClick={analisar}
-            >
-              {status === "analisando" ? "Analisando com IA..." : "Analisar aderência às vagas"}
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div>
-          <p style={{ fontSize: 13, color: "var(--text-dim)", marginTop: 0 }}>
-            Aderência de {nome} às vagas abertas. Escolha para qual vaga encaminhar.
-          </p>
-          {ranking.map(r => (
-            <div
-              key={r.vaga_id}
-              className={"rank-row" + (vagaEscolhida === r.vaga_id ? " selected" : "")}
-              onClick={() => setVagaEscolhida(r.vaga_id)}
-              style={{ cursor: "pointer" }}
-            >
-              <div>
-                <div className="rank-vaga">{r.vaga?.titulo}</div>
-                <div className="rank-reason">{r.justificativa}</div>
-              </div>
-              <span className={"score-pill score-" + scoreBand(r.score)}>{r.score}%</span>
-            </div>
-          ))}
-          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 20 }}>
-            <button className="btn" onClick={() => setStatus("form")}>Voltar</button>
-            <button className="btn btn-primary" onClick={salvarCandidato}>
-              Confirmar e enviar para Triagem
-            </button>
-          </div>
-        </div>
-      )}
-    </Modal>
-  );
+  return /*#__PURE__*/_jsxDEV(Modal, {
+    title: "Novo candidato",
+    onClose: onClose,
+    children: status !== "resultado" ? /*#__PURE__*/_jsxDEV("div", {
+      children: [/*#__PURE__*/_jsxDEV("div", {
+        className: "field",
+        children: [/*#__PURE__*/_jsxDEV("label", {
+          children: "Nome completo"
+        }, void 0, false), /*#__PURE__*/_jsxDEV("input", {
+          value: nome,
+          onChange: e => setNome(e.target.value),
+          required: true
+        }, void 0, false)]
+      }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
+        className: "field",
+        children: [/*#__PURE__*/_jsxDEV("label", {
+          children: "Telefone"
+        }, void 0, false), /*#__PURE__*/_jsxDEV("input", {
+          value: telefone,
+          onChange: e => setTelefone(e.target.value)
+        }, void 0, false)]
+      }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
+        className: "field",
+        children: [/*#__PURE__*/_jsxDEV("label", {
+          children: "E-mail"
+        }, void 0, false), /*#__PURE__*/_jsxDEV("input", {
+          type: "email",
+          value: email,
+          onChange: e => setEmail(e.target.value)
+        }, void 0, false)]
+      }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
+        className: "field",
+        children: [/*#__PURE__*/_jsxDEV("label", {
+          children: "Currículo (PDF ou Word)"
+        }, void 0, false), /*#__PURE__*/_jsxDEV("div", {
+          className: "upload-zone" + (arquivo ? " has-file" : ""),
+          onClick: () => fileInputRef.current.click(),
+          children: status === "extraindo" ? "Lendo arquivo..." : arquivo ? `✓ ${arquivo.name} (${textoExtraido.length} caracteres lidos)` : "Clique para selecionar o arquivo (.pdf ou .docx)"
+        }, void 0, false), /*#__PURE__*/_jsxDEV("input", {
+          ref: fileInputRef,
+          type: "file",
+          accept: ".pdf,.docx",
+          style: {
+            display: "none"
+          },
+          onChange: e => e.target.files[0] && handleFile(e.target.files[0])
+        }, void 0, false)]
+      }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
+        style: {
+          display: "flex",
+          gap: 8,
+          justifyContent: "flex-end",
+          marginTop: 20
+        },
+        children: [/*#__PURE__*/_jsxDEV("button", {
+          className: "btn",
+          onClick: onClose,
+          children: "Cancelar"
+        }, void 0, false), /*#__PURE__*/_jsxDEV("button", {
+          className: "btn btn-primary",
+          disabled: !nome || !textoExtraido || status === "analisando",
+          onClick: analisar,
+          children: status === "analisando" ? "Analisando com IA..." : "Analisar aderência às vagas"
+        }, void 0, false)]
+      }, void 0, true)]
+    }, void 0, true) : /*#__PURE__*/_jsxDEV("div", {
+      children: [/*#__PURE__*/_jsxDEV("p", {
+        style: {
+          fontSize: 13,
+          color: "var(--text-dim)",
+          marginTop: 0
+        },
+        children: ["Aderência de ", nome, " às vagas abertas. Escolha para qual vaga encaminhar."]
+      }, void 0, true), ranking.map(r => /*#__PURE__*/_jsxDEV("div", {
+        className: "rank-row" + (vagaEscolhida === r.vaga_id ? " selected" : ""),
+        onClick: () => setVagaEscolhida(r.vaga_id),
+        style: {
+          cursor: "pointer"
+        },
+        children: [/*#__PURE__*/_jsxDEV("div", {
+          children: [/*#__PURE__*/_jsxDEV("div", {
+            className: "rank-vaga",
+            children: r.vaga?.titulo
+          }, void 0, false), /*#__PURE__*/_jsxDEV("div", {
+            className: "rank-reason",
+            children: r.justificativa
+          }, void 0, false)]
+        }, void 0, true), /*#__PURE__*/_jsxDEV("span", {
+          className: "score-pill score-" + scoreBand(r.score),
+          children: [r.score, "%"]
+        }, void 0, true)]
+      }, r.vaga_id, true)), /*#__PURE__*/_jsxDEV("div", {
+        style: {
+          display: "flex",
+          gap: 8,
+          justifyContent: "flex-end",
+          marginTop: 20
+        },
+        children: [/*#__PURE__*/_jsxDEV("button", {
+          className: "btn",
+          onClick: () => setStatus("form"),
+          children: "Voltar"
+        }, void 0, false), /*#__PURE__*/_jsxDEV("button", {
+          className: "btn btn-primary",
+          onClick: salvarCandidato,
+          children: "Confirmar e enviar para Triagem"
+        }, void 0, false)]
+      }, void 0, true)]
+    }, void 0, true)
+  }, void 0, false);
 }
 
 /* =========================================================
    Pipeline (Kanban)
    ========================================================= */
-function PipelineView({ candidatos, vagas, onRefresh, showToast }) {
+function PipelineView({
+  candidatos,
+  vagas,
+  onRefresh,
+  showToast
+}) {
   const [modalAberto, setModalAberto] = useState(false);
-
   async function moverEtapa(candidato, novaEtapa) {
-    if (!supabase) { showToast("Backend ainda não conectado."); return; }
-    await supabase.from("candidatos").update({ etapa_atual: novaEtapa }).eq("id", candidato.id);
+    if (!supabase) {
+      showToast("Backend ainda não conectado.");
+      return;
+    }
+    await supabase.from("candidatos").update({
+      etapa_atual: novaEtapa
+    }).eq("id", candidato.id);
     onRefresh();
   }
-
   function vagaTitulo(id) {
     return vagas.find(v => v.id === id)?.titulo || "—";
   }
-
-  return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-        <div>
-          <h1 className="page-title">Pipeline</h1>
-          <p className="page-sub">Acompanhamento dos candidatos etapa a etapa.</p>
-        </div>
-        <button className="btn btn-primary" onClick={() => setModalAberto(true)}>+ Novo candidato</button>
-      </div>
-
-      <div className="kanban">
-        {ETAPAS.map((etapa, idx) => {
-          const nesta = candidatos.filter(c => c.etapa_atual === etapa.id);
-          const proxima = ETAPAS[idx + 1];
-          return (
-            <div className="kanban-col" key={etapa.id}>
-              <div className="kanban-col-head">
-                <span>{etapa.label}</span>
-                <span>{nesta.length}</span>
-              </div>
-              {nesta.map(c => (
-                <div className="kanban-card" key={c.id}>
-                  <div className="name">{c.nome}</div>
-                  <div className="vaga">{vagaTitulo(c.vaga_id)}</div>
-                  {c.score_ia != null && (
-                    <span className={"score-pill score-" + scoreBand(c.score_ia)}>{c.score_ia}% aderência</span>
-                  )}
-                  <div className="kanban-card-actions">
-                    <button className="btn btn-danger" onClick={() => moverEtapa(c, ETAPA_REPROVADO)}>Reprovar</button>
-                    {proxima && (
-                      <button className="btn btn-primary" onClick={() => moverEtapa(c, proxima.id)}>Avançar</button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          );
-        })}
-      </div>
-
-      {modalAberto && (
-        <NovoCandidatoModal
-          vagas={vagas}
-          onClose={() => setModalAberto(false)}
-          onSalvo={onRefresh}
-          showToast={showToast}
-        />
-      )}
-    </div>
-  );
+  return /*#__PURE__*/_jsxDEV("div", {
+    children: [/*#__PURE__*/_jsxDEV("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "flex-start"
+      },
+      children: [/*#__PURE__*/_jsxDEV("div", {
+        children: [/*#__PURE__*/_jsxDEV("h1", {
+          className: "page-title",
+          children: "Pipeline"
+        }, void 0, false), /*#__PURE__*/_jsxDEV("p", {
+          className: "page-sub",
+          children: "Acompanhamento dos candidatos etapa a etapa."
+        }, void 0, false)]
+      }, void 0, true), /*#__PURE__*/_jsxDEV("button", {
+        className: "btn btn-primary",
+        onClick: () => setModalAberto(true),
+        children: "+ Novo candidato"
+      }, void 0, false)]
+    }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
+      className: "kanban",
+      children: ETAPAS.map((etapa, idx) => {
+        const nesta = candidatos.filter(c => c.etapa_atual === etapa.id);
+        const proxima = ETAPAS[idx + 1];
+        return /*#__PURE__*/_jsxDEV("div", {
+          className: "kanban-col",
+          children: [/*#__PURE__*/_jsxDEV("div", {
+            className: "kanban-col-head",
+            children: [/*#__PURE__*/_jsxDEV("span", {
+              children: etapa.label
+            }, void 0, false), /*#__PURE__*/_jsxDEV("span", {
+              children: nesta.length
+            }, void 0, false)]
+          }, void 0, true), nesta.map(c => /*#__PURE__*/_jsxDEV("div", {
+            className: "kanban-card",
+            children: [/*#__PURE__*/_jsxDEV("div", {
+              className: "name",
+              children: c.nome
+            }, void 0, false), /*#__PURE__*/_jsxDEV("div", {
+              className: "vaga",
+              children: vagaTitulo(c.vaga_id)
+            }, void 0, false), c.score_ia != null && /*#__PURE__*/_jsxDEV("span", {
+              className: "score-pill score-" + scoreBand(c.score_ia),
+              children: [c.score_ia, "% aderência"]
+            }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
+              className: "kanban-card-actions",
+              children: [/*#__PURE__*/_jsxDEV("button", {
+                className: "btn btn-danger",
+                onClick: () => moverEtapa(c, ETAPA_REPROVADO),
+                children: "Reprovar"
+              }, void 0, false), proxima && /*#__PURE__*/_jsxDEV("button", {
+                className: "btn btn-primary",
+                onClick: () => moverEtapa(c, proxima.id),
+                children: "Avançar"
+              }, void 0, false)]
+            }, void 0, true)]
+          }, c.id, true))]
+        }, etapa.id, true);
+      })
+    }, void 0, false), modalAberto && /*#__PURE__*/_jsxDEV(NovoCandidatoModal, {
+      vagas: vagas,
+      onClose: () => setModalAberto(false),
+      onSalvo: onRefresh,
+      showToast: showToast
+    }, void 0, false)]
+  }, void 0, true);
 }
 
 /* =========================================================
@@ -734,68 +996,101 @@ function App() {
   const [vagas, setVagas] = useState([]);
   const [candidatos, setCandidatos] = useState([]);
   const [toastMsg, setToastMsg] = useState(null);
-
   function showToast(msg) {
     setToastMsg(msg);
     setTimeout(() => setToastMsg(null), 3500);
   }
-
   const carregarDados = useCallback(async () => {
     if (!supabase) return;
-    const [{ data: v }, { data: c }] = await Promise.all([
-      supabase.from("vagas").select("*").order("created_at", { ascending: false }),
-      supabase.from("candidatos").select("*").order("created_at", { ascending: false }),
-    ]);
+    const [{
+      data: v
+    }, {
+      data: c
+    }] = await Promise.all([supabase.from("vagas").select("*").order("created_at", {
+      ascending: false
+    }), supabase.from("candidatos").select("*").order("created_at", {
+      ascending: false
+    })]);
     setVagas(v || []);
     setCandidatos(c || []);
   }, []);
-
-  useEffect(() => { if (usuario) carregarDados(); }, [usuario, carregarDados]);
-
-  if (!usuario) return <LoginScreen onLogin={setUsuario} />;
-
+  useEffect(() => {
+    if (usuario) carregarDados();
+  }, [usuario, carregarDados]);
+  if (!usuario) return /*#__PURE__*/_jsxDEV(LoginScreen, {
+    onLogin: setUsuario
+  }, void 0, false);
   function logout() {
     localStorage.removeItem("rh_econstrucao_user");
     setUsuario(null);
   }
-
-  return (
-    <div className="app-shell">
-      <div className="sidebar">
-        <div className="sidebar-brand">
-          <div className="mark">RH ECONSTRUÇÃO</div>
-          <div className="sub">triagem &amp; pipeline</div>
-        </div>
-        <div className={"nav-item" + (aba === "pipeline" ? " active" : "")} onClick={() => setAba("pipeline")}>
-          Pipeline <span className="nav-count">{candidatos.length}</span>
-        </div>
-        <div className={"nav-item" + (aba === "vagas" ? " active" : "")} onClick={() => setAba("vagas")}>
-          Vagas <span className="nav-count">{vagas.length}</span>
-        </div>
-        <div className="sidebar-footer">
-          <div className="user">{usuario.nome}</div>
-          <button className="logout-btn" onClick={logout}>Sair</button>
-        </div>
-      </div>
-      <div className="main">
-        {!supabase && (
-          <div className="card" style={{ marginBottom: 20, borderColor: "var(--accent)" }}>
-            <strong>Backend ainda não conectado.</strong> Preencha SUPABASE_URL e SUPABASE_ANON_KEY no topo do arquivo assim que o projeto existir.
-          </div>
-        )}
-        {aba === "pipeline" && (
-          <PipelineView candidatos={candidatos} vagas={vagas} onRefresh={carregarDados} showToast={showToast} />
-        )}
-        {aba === "vagas" && (
-          <VagasView vagas={vagas} onRefresh={carregarDados} showToast={showToast} />
-        )}
-      </div>
-      {toastMsg && <div className="toast">{toastMsg}</div>}
-    </div>
-  );
+  return /*#__PURE__*/_jsxDEV("div", {
+    className: "app-shell",
+    children: [/*#__PURE__*/_jsxDEV("div", {
+      className: "sidebar",
+      children: [/*#__PURE__*/_jsxDEV("div", {
+        className: "sidebar-brand",
+        children: [/*#__PURE__*/_jsxDEV("div", {
+          className: "mark",
+          children: "RH ECONSTRUÇÃO"
+        }, void 0, false), /*#__PURE__*/_jsxDEV("div", {
+          className: "sub",
+          children: "triagem & pipeline"
+        }, void 0, false)]
+      }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
+        className: "nav-item" + (aba === "pipeline" ? " active" : ""),
+        onClick: () => setAba("pipeline"),
+        children: ["Pipeline ", /*#__PURE__*/_jsxDEV("span", {
+          className: "nav-count",
+          children: candidatos.length
+        }, void 0, false)]
+      }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
+        className: "nav-item" + (aba === "vagas" ? " active" : ""),
+        onClick: () => setAba("vagas"),
+        children: ["Vagas ", /*#__PURE__*/_jsxDEV("span", {
+          className: "nav-count",
+          children: vagas.length
+        }, void 0, false)]
+      }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
+        className: "sidebar-footer",
+        children: [/*#__PURE__*/_jsxDEV("div", {
+          className: "user",
+          children: usuario.nome
+        }, void 0, false), /*#__PURE__*/_jsxDEV("button", {
+          className: "logout-btn",
+          onClick: logout,
+          children: "Sair"
+        }, void 0, false)]
+      }, void 0, true)]
+    }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
+      className: "main",
+      children: [!supabase && /*#__PURE__*/_jsxDEV("div", {
+        className: "card",
+        style: {
+          marginBottom: 20,
+          borderColor: "var(--accent)"
+        },
+        children: [/*#__PURE__*/_jsxDEV("strong", {
+          children: "Backend ainda não conectado."
+        }, void 0, false), " Preencha SUPABASE_URL e SUPABASE_ANON_KEY no topo do arquivo assim que o projeto existir."]
+      }, void 0, true), aba === "pipeline" && /*#__PURE__*/_jsxDEV(PipelineView, {
+        candidatos: candidatos,
+        vagas: vagas,
+        onRefresh: carregarDados,
+        showToast: showToast
+      }, void 0, false), aba === "vagas" && /*#__PURE__*/_jsxDEV(VagasView, {
+        vagas: vagas,
+        onRefresh: carregarDados,
+        showToast: showToast
+      }, void 0, false)]
+    }, void 0, true), toastMsg && /*#__PURE__*/_jsxDEV("div", {
+      className: "toast",
+      children: toastMsg
+    }, void 0, false)]
+  }, void 0, true);
 }
+ReactDOM.createRoot(document.getElementById("root")).render(/*#__PURE__*/_jsxDEV(App, {}, void 0, false));
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 </script>
 </body>
 </html>
