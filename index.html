@@ -259,7 +259,6 @@
 <div id="root"></div>
 
 <script>
-import { jsxDEV as _jsxDEV } from "react/jsx-dev-runtime";
 const {
   useState,
   useEffect,
@@ -270,8 +269,8 @@ const {
 /* =========================================================
    CONFIG — preencher assim que o projeto Supabase existir
    ========================================================= */
-const SUPABASE_URL = "COLOQUE_A_URL_DO_PROJETO_AQUI";
-const SUPABASE_ANON_KEY = "COLOQUE_A_ANON_KEY_AQUI";
+const SUPABASE_URL = "https://gypdrqeingxqkseacvjx.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5cGRycWVpbmd4cWtzZWFjdmp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwNDQ1ODIsImV4cCI6MjEwNDYyMDU4Mn0.Zuh8unxfcH1HmaIZxriJxt6AqjPuCNCLww5KBYAothQ";
 const supabase = SUPABASE_URL.startsWith("http") ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 const ETAPAS = [{
   id: "recebido",
@@ -321,8 +320,7 @@ async function extractPdfText(file) {
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i);
     const content = await page.getTextContent();
-    text += content.items.map(it => it.str).join(" ") + "
-";
+    text += content.items.map(it => it.str).join(" ") + "\n";
   }
   return text.trim();
 }
@@ -410,53 +408,40 @@ function LoginScreen({
       setCarregando(false);
     }
   }
-  return /*#__PURE__*/_jsxDEV("div", {
-    className: "login-wrap",
-    children: /*#__PURE__*/_jsxDEV("div", {
-      className: "card login-card",
-      children: [/*#__PURE__*/_jsxDEV("div", {
-        className: "login-title",
-        children: "RH Econstrução"
-      }, void 0, false), /*#__PURE__*/_jsxDEV("div", {
-        className: "login-sub",
-        children: "Triagem e acompanhamento de candidatos"
-      }, void 0, false), /*#__PURE__*/_jsxDEV("form", {
-        onSubmit: handleSubmit,
-        children: [/*#__PURE__*/_jsxDEV("div", {
-          className: "field",
-          children: [/*#__PURE__*/_jsxDEV("label", {
-            children: "E-mail"
-          }, void 0, false), /*#__PURE__*/_jsxDEV("input", {
-            type: "email",
-            value: email,
-            onChange: e => setEmail(e.target.value),
-            required: true,
-            autoFocus: true
-          }, void 0, false)]
-        }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
-          className: "field",
-          children: [/*#__PURE__*/_jsxDEV("label", {
-            children: "Senha"
-          }, void 0, false), /*#__PURE__*/_jsxDEV("input", {
-            type: "password",
-            value: senha,
-            onChange: e => setSenha(e.target.value),
-            required: true
-          }, void 0, false)]
-        }, void 0, true), /*#__PURE__*/_jsxDEV("button", {
-          className: "btn btn-primary",
-          style: {
-            width: "100%"
-          },
-          disabled: carregando,
-          children: carregando ? "Entrando..." : "Entrar"
-        }, void 0, false), erro && /*#__PURE__*/_jsxDEV("div", {
-          className: "login-error",
-          children: erro
-        }, void 0, false)]
-      }, void 0, true)]
-    }, void 0, true)
-  }, void 0, false);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "login-wrap"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "card login-card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "login-title"
+  }, "RH Econstrução"), /*#__PURE__*/React.createElement("div", {
+    className: "login-sub"
+  }, "Triagem e acompanhamento de candidatos"), /*#__PURE__*/React.createElement("form", {
+    onSubmit: handleSubmit
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "field"
+  }, /*#__PURE__*/React.createElement("label", null, "E-mail"), /*#__PURE__*/React.createElement("input", {
+    type: "email",
+    value: email,
+    onChange: e => setEmail(e.target.value),
+    required: true,
+    autoFocus: true
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "field"
+  }, /*#__PURE__*/React.createElement("label", null, "Senha"), /*#__PURE__*/React.createElement("input", {
+    type: "password",
+    value: senha,
+    onChange: e => setSenha(e.target.value),
+    required: true
+  })), /*#__PURE__*/React.createElement("button", {
+    className: "btn btn-primary",
+    style: {
+      width: "100%"
+    },
+    disabled: carregando
+  }, carregando ? "Entrando..." : "Entrar"), erro && /*#__PURE__*/React.createElement("div", {
+    className: "login-error"
+  }, erro))));
 }
 
 /* =========================================================
@@ -467,18 +452,15 @@ function Modal({
   onClose,
   children
 }) {
-  return /*#__PURE__*/_jsxDEV("div", {
+  return /*#__PURE__*/React.createElement("div", {
     className: "modal-overlay",
-    onClick: onClose,
-    children: /*#__PURE__*/_jsxDEV("div", {
-      className: "modal",
-      onClick: e => e.stopPropagation(),
-      children: [/*#__PURE__*/_jsxDEV("div", {
-        className: "modal-title",
-        children: title
-      }, void 0, false), children]
-    }, void 0, true)
-  }, void 0, false);
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal-title"
+  }, title), children));
 }
 
 /* =========================================================
@@ -539,166 +521,107 @@ function VagasView({
     setModalAberto(false);
     onRefresh();
   }
-  return /*#__PURE__*/_jsxDEV("div", {
-    children: [/*#__PURE__*/_jsxDEV("div", {
-      style: {
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "flex-start"
-      },
-      children: [/*#__PURE__*/_jsxDEV("div", {
-        children: [/*#__PURE__*/_jsxDEV("h1", {
-          className: "page-title",
-          children: "Vagas"
-        }, void 0, false), /*#__PURE__*/_jsxDEV("p", {
-          className: "page-sub",
-          children: "Descrição e requisitos usados pela triagem automática."
-        }, void 0, false)]
-      }, void 0, true), /*#__PURE__*/_jsxDEV("button", {
-        className: "btn btn-primary",
-        onClick: abrirNovo,
-        children: "+ Nova vaga"
-      }, void 0, false)]
-    }, void 0, true), vagas.length === 0 ? /*#__PURE__*/_jsxDEV("div", {
-      className: "empty-state card",
-      children: [/*#__PURE__*/_jsxDEV("div", {
-        className: "title",
-        children: "Nenhuma vaga cadastrada"
-      }, void 0, false), /*#__PURE__*/_jsxDEV("div", {
-        children: "Cadastre a primeira vaga para começar a triar candidatos."
-      }, void 0, false)]
-    }, void 0, true) : /*#__PURE__*/_jsxDEV("div", {
-      className: "card",
-      style: {
-        padding: 0
-      },
-      children: /*#__PURE__*/_jsxDEV("table", {
-        children: [/*#__PURE__*/_jsxDEV("thead", {
-          children: /*#__PURE__*/_jsxDEV("tr", {
-            children: [/*#__PURE__*/_jsxDEV("th", {
-              children: "Título"
-            }, void 0, false), /*#__PURE__*/_jsxDEV("th", {
-              children: "Local"
-            }, void 0, false), /*#__PURE__*/_jsxDEV("th", {
-              children: "Status"
-            }, void 0, false), /*#__PURE__*/_jsxDEV("th", {}, void 0, false)]
-          }, void 0, true)
-        }, void 0, false), /*#__PURE__*/_jsxDEV("tbody", {
-          children: vagas.map(v => /*#__PURE__*/_jsxDEV("tr", {
-            children: [/*#__PURE__*/_jsxDEV("td", {
-              children: v.titulo
-            }, void 0, false), /*#__PURE__*/_jsxDEV("td", {
-              children: v.localizacao || "—"
-            }, void 0, false), /*#__PURE__*/_jsxDEV("td", {
-              children: /*#__PURE__*/_jsxDEV("span", {
-                className: "tag",
-                children: v.status
-              }, void 0, false)
-            }, void 0, false), /*#__PURE__*/_jsxDEV("td", {
-              style: {
-                textAlign: "right"
-              },
-              children: /*#__PURE__*/_jsxDEV("button", {
-                className: "btn",
-                onClick: () => abrirEdicao(v),
-                children: "Editar"
-              }, void 0, false)
-            }, void 0, false)]
-          }, v.id, true))
-        }, void 0, false)]
-      }, void 0, true)
-    }, void 0, false), modalAberto && /*#__PURE__*/_jsxDEV(Modal, {
-      title: editando ? "Editar vaga" : "Nova vaga",
-      onClose: () => setModalAberto(false),
-      children: /*#__PURE__*/_jsxDEV("form", {
-        onSubmit: salvar,
-        children: [/*#__PURE__*/_jsxDEV("div", {
-          className: "field",
-          children: [/*#__PURE__*/_jsxDEV("label", {
-            children: "Título"
-          }, void 0, false), /*#__PURE__*/_jsxDEV("input", {
-            value: form.titulo,
-            onChange: e => setForm({
-              ...form,
-              titulo: e.target.value
-            }),
-            required: true
-          }, void 0, false)]
-        }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
-          className: "field",
-          children: [/*#__PURE__*/_jsxDEV("label", {
-            children: "Descrição das atividades"
-          }, void 0, false), /*#__PURE__*/_jsxDEV("textarea", {
-            rows: "3",
-            value: form.descricao,
-            onChange: e => setForm({
-              ...form,
-              descricao: e.target.value
-            })
-          }, void 0, false)]
-        }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
-          className: "field",
-          children: [/*#__PURE__*/_jsxDEV("label", {
-            children: "Requisitos (o que a IA vai comparar com o currículo)"
-          }, void 0, false), /*#__PURE__*/_jsxDEV("textarea", {
-            rows: "4",
-            value: form.requisitos,
-            onChange: e => setForm({
-              ...form,
-              requisitos: e.target.value
-            }),
-            placeholder: "Ex: experiência com faturamento, excel intermediário, 2º grau completo..."
-          }, void 0, false)]
-        }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
-          className: "field",
-          children: [/*#__PURE__*/_jsxDEV("label", {
-            children: "Localização"
-          }, void 0, false), /*#__PURE__*/_jsxDEV("input", {
-            value: form.localizacao,
-            onChange: e => setForm({
-              ...form,
-              localizacao: e.target.value
-            })
-          }, void 0, false)]
-        }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
-          className: "field",
-          children: [/*#__PURE__*/_jsxDEV("label", {
-            children: "Status"
-          }, void 0, false), /*#__PURE__*/_jsxDEV("select", {
-            value: form.status,
-            onChange: e => setForm({
-              ...form,
-              status: e.target.value
-            }),
-            children: [/*#__PURE__*/_jsxDEV("option", {
-              value: "aberta",
-              children: "Aberta"
-            }, void 0, false), /*#__PURE__*/_jsxDEV("option", {
-              value: "fechada",
-              children: "Fechada"
-            }, void 0, false)]
-          }, void 0, true)]
-        }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
-          style: {
-            display: "flex",
-            gap: 8,
-            justifyContent: "flex-end",
-            marginTop: 20
-          },
-          children: [/*#__PURE__*/_jsxDEV("button", {
-            type: "button",
-            className: "btn",
-            onClick: () => setModalAberto(false),
-            children: "Cancelar"
-          }, void 0, false), /*#__PURE__*/_jsxDEV("button", {
-            type: "submit",
-            className: "btn btn-primary",
-            children: "Salvar"
-          }, void 0, false)]
-        }, void 0, true)]
-      }, void 0, true)
-    }, void 0, false)]
-  }, void 0, true);
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "flex-start"
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", {
+    className: "page-title"
+  }, "Vagas"), /*#__PURE__*/React.createElement("p", {
+    className: "page-sub"
+  }, "Descrição e requisitos usados pela triagem automática.")), /*#__PURE__*/React.createElement("button", {
+    className: "btn btn-primary",
+    onClick: abrirNovo
+  }, "+ Nova vaga")), vagas.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    className: "empty-state card"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "title"
+  }, "Nenhuma vaga cadastrada"), /*#__PURE__*/React.createElement("div", null, "Cadastre a primeira vaga para começar a triar candidatos.")) : /*#__PURE__*/React.createElement("div", {
+    className: "card",
+    style: {
+      padding: 0
+    }
+  }, /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, "Título"), /*#__PURE__*/React.createElement("th", null, "Local"), /*#__PURE__*/React.createElement("th", null, "Status"), /*#__PURE__*/React.createElement("th", null))), /*#__PURE__*/React.createElement("tbody", null, vagas.map(v => /*#__PURE__*/React.createElement("tr", {
+    key: v.id
+  }, /*#__PURE__*/React.createElement("td", null, v.titulo), /*#__PURE__*/React.createElement("td", null, v.localizacao || "—"), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("span", {
+    className: "tag"
+  }, v.status)), /*#__PURE__*/React.createElement("td", {
+    style: {
+      textAlign: "right"
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "btn",
+    onClick: () => abrirEdicao(v)
+  }, "Editar"))))))), modalAberto && /*#__PURE__*/React.createElement(Modal, {
+    title: editando ? "Editar vaga" : "Nova vaga",
+    onClose: () => setModalAberto(false)
+  }, /*#__PURE__*/React.createElement("form", {
+    onSubmit: salvar
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "field"
+  }, /*#__PURE__*/React.createElement("label", null, "Título"), /*#__PURE__*/React.createElement("input", {
+    value: form.titulo,
+    onChange: e => setForm({
+      ...form,
+      titulo: e.target.value
+    }),
+    required: true
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "field"
+  }, /*#__PURE__*/React.createElement("label", null, "Descrição das atividades"), /*#__PURE__*/React.createElement("textarea", {
+    rows: "3",
+    value: form.descricao,
+    onChange: e => setForm({
+      ...form,
+      descricao: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "field"
+  }, /*#__PURE__*/React.createElement("label", null, "Requisitos (o que a IA vai comparar com o currículo)"), /*#__PURE__*/React.createElement("textarea", {
+    rows: "4",
+    value: form.requisitos,
+    onChange: e => setForm({
+      ...form,
+      requisitos: e.target.value
+    }),
+    placeholder: "Ex: experiência com faturamento, excel intermediário, 2º grau completo..."
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "field"
+  }, /*#__PURE__*/React.createElement("label", null, "Localização"), /*#__PURE__*/React.createElement("input", {
+    value: form.localizacao,
+    onChange: e => setForm({
+      ...form,
+      localizacao: e.target.value
+    })
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "field"
+  }, /*#__PURE__*/React.createElement("label", null, "Status"), /*#__PURE__*/React.createElement("select", {
+    value: form.status,
+    onChange: e => setForm({
+      ...form,
+      status: e.target.value
+    })
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "aberta"
+  }, "Aberta"), /*#__PURE__*/React.createElement("option", {
+    value: "fechada"
+  }, "Fechada"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      justifyContent: "flex-end",
+      marginTop: 20
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "btn",
+    onClick: () => setModalAberto(false)
+  }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
+    type: "submit",
+    className: "btn btn-primary"
+  }, "Salvar")))));
 }
 
 /* =========================================================
@@ -780,116 +703,86 @@ function NovoCandidatoModal({
     onSalvo();
     onClose();
   }
-  return /*#__PURE__*/_jsxDEV(Modal, {
+  return /*#__PURE__*/React.createElement(Modal, {
     title: "Novo candidato",
-    onClose: onClose,
-    children: status !== "resultado" ? /*#__PURE__*/_jsxDEV("div", {
-      children: [/*#__PURE__*/_jsxDEV("div", {
-        className: "field",
-        children: [/*#__PURE__*/_jsxDEV("label", {
-          children: "Nome completo"
-        }, void 0, false), /*#__PURE__*/_jsxDEV("input", {
-          value: nome,
-          onChange: e => setNome(e.target.value),
-          required: true
-        }, void 0, false)]
-      }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
-        className: "field",
-        children: [/*#__PURE__*/_jsxDEV("label", {
-          children: "Telefone"
-        }, void 0, false), /*#__PURE__*/_jsxDEV("input", {
-          value: telefone,
-          onChange: e => setTelefone(e.target.value)
-        }, void 0, false)]
-      }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
-        className: "field",
-        children: [/*#__PURE__*/_jsxDEV("label", {
-          children: "E-mail"
-        }, void 0, false), /*#__PURE__*/_jsxDEV("input", {
-          type: "email",
-          value: email,
-          onChange: e => setEmail(e.target.value)
-        }, void 0, false)]
-      }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
-        className: "field",
-        children: [/*#__PURE__*/_jsxDEV("label", {
-          children: "Currículo (PDF ou Word)"
-        }, void 0, false), /*#__PURE__*/_jsxDEV("div", {
-          className: "upload-zone" + (arquivo ? " has-file" : ""),
-          onClick: () => fileInputRef.current.click(),
-          children: status === "extraindo" ? "Lendo arquivo..." : arquivo ? `✓ ${arquivo.name} (${textoExtraido.length} caracteres lidos)` : "Clique para selecionar o arquivo (.pdf ou .docx)"
-        }, void 0, false), /*#__PURE__*/_jsxDEV("input", {
-          ref: fileInputRef,
-          type: "file",
-          accept: ".pdf,.docx",
-          style: {
-            display: "none"
-          },
-          onChange: e => e.target.files[0] && handleFile(e.target.files[0])
-        }, void 0, false)]
-      }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
-        style: {
-          display: "flex",
-          gap: 8,
-          justifyContent: "flex-end",
-          marginTop: 20
-        },
-        children: [/*#__PURE__*/_jsxDEV("button", {
-          className: "btn",
-          onClick: onClose,
-          children: "Cancelar"
-        }, void 0, false), /*#__PURE__*/_jsxDEV("button", {
-          className: "btn btn-primary",
-          disabled: !nome || !textoExtraido || status === "analisando",
-          onClick: analisar,
-          children: status === "analisando" ? "Analisando com IA..." : "Analisar aderência às vagas"
-        }, void 0, false)]
-      }, void 0, true)]
-    }, void 0, true) : /*#__PURE__*/_jsxDEV("div", {
-      children: [/*#__PURE__*/_jsxDEV("p", {
-        style: {
-          fontSize: 13,
-          color: "var(--text-dim)",
-          marginTop: 0
-        },
-        children: ["Aderência de ", nome, " às vagas abertas. Escolha para qual vaga encaminhar."]
-      }, void 0, true), ranking.map(r => /*#__PURE__*/_jsxDEV("div", {
-        className: "rank-row" + (vagaEscolhida === r.vaga_id ? " selected" : ""),
-        onClick: () => setVagaEscolhida(r.vaga_id),
-        style: {
-          cursor: "pointer"
-        },
-        children: [/*#__PURE__*/_jsxDEV("div", {
-          children: [/*#__PURE__*/_jsxDEV("div", {
-            className: "rank-vaga",
-            children: r.vaga?.titulo
-          }, void 0, false), /*#__PURE__*/_jsxDEV("div", {
-            className: "rank-reason",
-            children: r.justificativa
-          }, void 0, false)]
-        }, void 0, true), /*#__PURE__*/_jsxDEV("span", {
-          className: "score-pill score-" + scoreBand(r.score),
-          children: [r.score, "%"]
-        }, void 0, true)]
-      }, r.vaga_id, true)), /*#__PURE__*/_jsxDEV("div", {
-        style: {
-          display: "flex",
-          gap: 8,
-          justifyContent: "flex-end",
-          marginTop: 20
-        },
-        children: [/*#__PURE__*/_jsxDEV("button", {
-          className: "btn",
-          onClick: () => setStatus("form"),
-          children: "Voltar"
-        }, void 0, false), /*#__PURE__*/_jsxDEV("button", {
-          className: "btn btn-primary",
-          onClick: salvarCandidato,
-          children: "Confirmar e enviar para Triagem"
-        }, void 0, false)]
-      }, void 0, true)]
-    }, void 0, true)
-  }, void 0, false);
+    onClose: onClose
+  }, status !== "resultado" ? /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "field"
+  }, /*#__PURE__*/React.createElement("label", null, "Nome completo"), /*#__PURE__*/React.createElement("input", {
+    value: nome,
+    onChange: e => setNome(e.target.value),
+    required: true
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "field"
+  }, /*#__PURE__*/React.createElement("label", null, "Telefone"), /*#__PURE__*/React.createElement("input", {
+    value: telefone,
+    onChange: e => setTelefone(e.target.value)
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "field"
+  }, /*#__PURE__*/React.createElement("label", null, "E-mail"), /*#__PURE__*/React.createElement("input", {
+    type: "email",
+    value: email,
+    onChange: e => setEmail(e.target.value)
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "field"
+  }, /*#__PURE__*/React.createElement("label", null, "Currículo (PDF ou Word)"), /*#__PURE__*/React.createElement("div", {
+    className: "upload-zone" + (arquivo ? " has-file" : ""),
+    onClick: () => fileInputRef.current.click()
+  }, status === "extraindo" ? "Lendo arquivo..." : arquivo ? `✓ ${arquivo.name} (${textoExtraido.length} caracteres lidos)` : "Clique para selecionar o arquivo (.pdf ou .docx)"), /*#__PURE__*/React.createElement("input", {
+    ref: fileInputRef,
+    type: "file",
+    accept: ".pdf,.docx",
+    style: {
+      display: "none"
+    },
+    onChange: e => e.target.files[0] && handleFile(e.target.files[0])
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      justifyContent: "flex-end",
+      marginTop: 20
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "btn",
+    onClick: onClose
+  }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
+    className: "btn btn-primary",
+    disabled: !nome || !textoExtraido || status === "analisando",
+    onClick: analisar
+  }, status === "analisando" ? "Analisando com IA..." : "Analisar aderência às vagas"))) : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13,
+      color: "var(--text-dim)",
+      marginTop: 0
+    }
+  }, "Aderência de ", nome, " às vagas abertas. Escolha para qual vaga encaminhar."), ranking.map(r => /*#__PURE__*/React.createElement("div", {
+    key: r.vaga_id,
+    className: "rank-row" + (vagaEscolhida === r.vaga_id ? " selected" : ""),
+    onClick: () => setVagaEscolhida(r.vaga_id),
+    style: {
+      cursor: "pointer"
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "rank-vaga"
+  }, r.vaga?.titulo), /*#__PURE__*/React.createElement("div", {
+    className: "rank-reason"
+  }, r.justificativa)), /*#__PURE__*/React.createElement("span", {
+    className: "score-pill score-" + scoreBand(r.score)
+  }, r.score, "%"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      justifyContent: "flex-end",
+      marginTop: 20
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "btn",
+    onClick: () => setStatus("form")
+  }, "Voltar"), /*#__PURE__*/React.createElement("button", {
+    className: "btn btn-primary",
+    onClick: salvarCandidato
+  }, "Confirmar e enviar para Triagem"))));
 }
 
 /* =========================================================
@@ -915,73 +808,53 @@ function PipelineView({
   function vagaTitulo(id) {
     return vagas.find(v => v.id === id)?.titulo || "—";
   }
-  return /*#__PURE__*/_jsxDEV("div", {
-    children: [/*#__PURE__*/_jsxDEV("div", {
-      style: {
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "flex-start"
-      },
-      children: [/*#__PURE__*/_jsxDEV("div", {
-        children: [/*#__PURE__*/_jsxDEV("h1", {
-          className: "page-title",
-          children: "Pipeline"
-        }, void 0, false), /*#__PURE__*/_jsxDEV("p", {
-          className: "page-sub",
-          children: "Acompanhamento dos candidatos etapa a etapa."
-        }, void 0, false)]
-      }, void 0, true), /*#__PURE__*/_jsxDEV("button", {
-        className: "btn btn-primary",
-        onClick: () => setModalAberto(true),
-        children: "+ Novo candidato"
-      }, void 0, false)]
-    }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
-      className: "kanban",
-      children: ETAPAS.map((etapa, idx) => {
-        const nesta = candidatos.filter(c => c.etapa_atual === etapa.id);
-        const proxima = ETAPAS[idx + 1];
-        return /*#__PURE__*/_jsxDEV("div", {
-          className: "kanban-col",
-          children: [/*#__PURE__*/_jsxDEV("div", {
-            className: "kanban-col-head",
-            children: [/*#__PURE__*/_jsxDEV("span", {
-              children: etapa.label
-            }, void 0, false), /*#__PURE__*/_jsxDEV("span", {
-              children: nesta.length
-            }, void 0, false)]
-          }, void 0, true), nesta.map(c => /*#__PURE__*/_jsxDEV("div", {
-            className: "kanban-card",
-            children: [/*#__PURE__*/_jsxDEV("div", {
-              className: "name",
-              children: c.nome
-            }, void 0, false), /*#__PURE__*/_jsxDEV("div", {
-              className: "vaga",
-              children: vagaTitulo(c.vaga_id)
-            }, void 0, false), c.score_ia != null && /*#__PURE__*/_jsxDEV("span", {
-              className: "score-pill score-" + scoreBand(c.score_ia),
-              children: [c.score_ia, "% aderência"]
-            }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
-              className: "kanban-card-actions",
-              children: [/*#__PURE__*/_jsxDEV("button", {
-                className: "btn btn-danger",
-                onClick: () => moverEtapa(c, ETAPA_REPROVADO),
-                children: "Reprovar"
-              }, void 0, false), proxima && /*#__PURE__*/_jsxDEV("button", {
-                className: "btn btn-primary",
-                onClick: () => moverEtapa(c, proxima.id),
-                children: "Avançar"
-              }, void 0, false)]
-            }, void 0, true)]
-          }, c.id, true))]
-        }, etapa.id, true);
-      })
-    }, void 0, false), modalAberto && /*#__PURE__*/_jsxDEV(NovoCandidatoModal, {
-      vagas: vagas,
-      onClose: () => setModalAberto(false),
-      onSalvo: onRefresh,
-      showToast: showToast
-    }, void 0, false)]
-  }, void 0, true);
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "flex-start"
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", {
+    className: "page-title"
+  }, "Pipeline"), /*#__PURE__*/React.createElement("p", {
+    className: "page-sub"
+  }, "Acompanhamento dos candidatos etapa a etapa.")), /*#__PURE__*/React.createElement("button", {
+    className: "btn btn-primary",
+    onClick: () => setModalAberto(true)
+  }, "+ Novo candidato")), /*#__PURE__*/React.createElement("div", {
+    className: "kanban"
+  }, ETAPAS.map((etapa, idx) => {
+    const nesta = candidatos.filter(c => c.etapa_atual === etapa.id);
+    const proxima = ETAPAS[idx + 1];
+    return /*#__PURE__*/React.createElement("div", {
+      className: "kanban-col",
+      key: etapa.id
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "kanban-col-head"
+    }, /*#__PURE__*/React.createElement("span", null, etapa.label), /*#__PURE__*/React.createElement("span", null, nesta.length)), nesta.map(c => /*#__PURE__*/React.createElement("div", {
+      className: "kanban-card",
+      key: c.id
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "name"
+    }, c.nome), /*#__PURE__*/React.createElement("div", {
+      className: "vaga"
+    }, vagaTitulo(c.vaga_id)), c.score_ia != null && /*#__PURE__*/React.createElement("span", {
+      className: "score-pill score-" + scoreBand(c.score_ia)
+    }, c.score_ia, "% aderência"), /*#__PURE__*/React.createElement("div", {
+      className: "kanban-card-actions"
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "btn btn-danger",
+      onClick: () => moverEtapa(c, ETAPA_REPROVADO)
+    }, "Reprovar"), proxima && /*#__PURE__*/React.createElement("button", {
+      className: "btn btn-primary",
+      onClick: () => moverEtapa(c, proxima.id)
+    }, "Avançar")))));
+  })), modalAberto && /*#__PURE__*/React.createElement(NovoCandidatoModal, {
+    vagas: vagas,
+    onClose: () => setModalAberto(false),
+    onSalvo: onRefresh,
+    showToast: showToast
+  }));
 }
 
 /* =========================================================
@@ -1017,79 +890,62 @@ function App() {
   useEffect(() => {
     if (usuario) carregarDados();
   }, [usuario, carregarDados]);
-  if (!usuario) return /*#__PURE__*/_jsxDEV(LoginScreen, {
+  if (!usuario) return /*#__PURE__*/React.createElement(LoginScreen, {
     onLogin: setUsuario
-  }, void 0, false);
+  });
   function logout() {
     localStorage.removeItem("rh_econstrucao_user");
     setUsuario(null);
   }
-  return /*#__PURE__*/_jsxDEV("div", {
-    className: "app-shell",
-    children: [/*#__PURE__*/_jsxDEV("div", {
-      className: "sidebar",
-      children: [/*#__PURE__*/_jsxDEV("div", {
-        className: "sidebar-brand",
-        children: [/*#__PURE__*/_jsxDEV("div", {
-          className: "mark",
-          children: "RH ECONSTRUÇÃO"
-        }, void 0, false), /*#__PURE__*/_jsxDEV("div", {
-          className: "sub",
-          children: "triagem & pipeline"
-        }, void 0, false)]
-      }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
-        className: "nav-item" + (aba === "pipeline" ? " active" : ""),
-        onClick: () => setAba("pipeline"),
-        children: ["Pipeline ", /*#__PURE__*/_jsxDEV("span", {
-          className: "nav-count",
-          children: candidatos.length
-        }, void 0, false)]
-      }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
-        className: "nav-item" + (aba === "vagas" ? " active" : ""),
-        onClick: () => setAba("vagas"),
-        children: ["Vagas ", /*#__PURE__*/_jsxDEV("span", {
-          className: "nav-count",
-          children: vagas.length
-        }, void 0, false)]
-      }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
-        className: "sidebar-footer",
-        children: [/*#__PURE__*/_jsxDEV("div", {
-          className: "user",
-          children: usuario.nome
-        }, void 0, false), /*#__PURE__*/_jsxDEV("button", {
-          className: "logout-btn",
-          onClick: logout,
-          children: "Sair"
-        }, void 0, false)]
-      }, void 0, true)]
-    }, void 0, true), /*#__PURE__*/_jsxDEV("div", {
-      className: "main",
-      children: [!supabase && /*#__PURE__*/_jsxDEV("div", {
-        className: "card",
-        style: {
-          marginBottom: 20,
-          borderColor: "var(--accent)"
-        },
-        children: [/*#__PURE__*/_jsxDEV("strong", {
-          children: "Backend ainda não conectado."
-        }, void 0, false), " Preencha SUPABASE_URL e SUPABASE_ANON_KEY no topo do arquivo assim que o projeto existir."]
-      }, void 0, true), aba === "pipeline" && /*#__PURE__*/_jsxDEV(PipelineView, {
-        candidatos: candidatos,
-        vagas: vagas,
-        onRefresh: carregarDados,
-        showToast: showToast
-      }, void 0, false), aba === "vagas" && /*#__PURE__*/_jsxDEV(VagasView, {
-        vagas: vagas,
-        onRefresh: carregarDados,
-        showToast: showToast
-      }, void 0, false)]
-    }, void 0, true), toastMsg && /*#__PURE__*/_jsxDEV("div", {
-      className: "toast",
-      children: toastMsg
-    }, void 0, false)]
-  }, void 0, true);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "app-shell"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "sidebar"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "sidebar-brand"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "mark"
+  }, "RH ECONSTRUÇÃO"), /*#__PURE__*/React.createElement("div", {
+    className: "sub"
+  }, "triagem & pipeline")), /*#__PURE__*/React.createElement("div", {
+    className: "nav-item" + (aba === "pipeline" ? " active" : ""),
+    onClick: () => setAba("pipeline")
+  }, "Pipeline ", /*#__PURE__*/React.createElement("span", {
+    className: "nav-count"
+  }, candidatos.length)), /*#__PURE__*/React.createElement("div", {
+    className: "nav-item" + (aba === "vagas" ? " active" : ""),
+    onClick: () => setAba("vagas")
+  }, "Vagas ", /*#__PURE__*/React.createElement("span", {
+    className: "nav-count"
+  }, vagas.length)), /*#__PURE__*/React.createElement("div", {
+    className: "sidebar-footer"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "user"
+  }, usuario.nome), /*#__PURE__*/React.createElement("button", {
+    className: "logout-btn",
+    onClick: logout
+  }, "Sair"))), /*#__PURE__*/React.createElement("div", {
+    className: "main"
+  }, !supabase && /*#__PURE__*/React.createElement("div", {
+    className: "card",
+    style: {
+      marginBottom: 20,
+      borderColor: "var(--accent)"
+    }
+  }, /*#__PURE__*/React.createElement("strong", null, "Backend ainda não conectado."), " Preencha SUPABASE_URL e SUPABASE_ANON_KEY no topo do arquivo assim que o projeto existir."), aba === "pipeline" && /*#__PURE__*/React.createElement(PipelineView, {
+    candidatos: candidatos,
+    vagas: vagas,
+    onRefresh: carregarDados,
+    showToast: showToast
+  }), aba === "vagas" && /*#__PURE__*/React.createElement(VagasView, {
+    vagas: vagas,
+    onRefresh: carregarDados,
+    showToast: showToast
+  })), toastMsg && /*#__PURE__*/React.createElement("div", {
+    className: "toast"
+  }, toastMsg));
 }
-ReactDOM.createRoot(document.getElementById("root")).render(/*#__PURE__*/_jsxDEV(App, {}, void 0, false));
+ReactDOM.createRoot(document.getElementById("root")).render(/*#__PURE__*/React.createElement(App, null));
 
 </script>
 </body>
