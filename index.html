@@ -271,7 +271,7 @@ const {
    ========================================================= */
 const SUPABASE_URL = "https://gypdrqeingxqkseacvjx.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd5cGRycWVpbmd4cWtzZWFjdmp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwNDQ1ODIsImV4cCI6MjEwNDYyMDU4Mn0.Zuh8unxfcH1HmaIZxriJxt6AqjPuCNCLww5KBYAothQ";
-const supabase = SUPABASE_URL.startsWith("http") ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+const supabaseClient = SUPABASE_URL.startsWith("http") ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 const ETAPAS = [{
   id: "recebido",
   label: "Recebido"
@@ -343,11 +343,11 @@ async function extractResumeText(file) {
 // Chama a Edge Function que faz a comparação com IA.
 // Até o Supabase estar plugado, cai num modo de simulação local (aviso visível).
 async function scoreCandidateAgainstVagas(curriculoTexto, vagas) {
-  if (supabase) {
+  if (supabaseClient) {
     const {
       data,
       error
-    } = await supabase.functions.invoke("triagem-ia", {
+    } = await supabaseClient.functions.invoke("triagem-ia", {
       body: {
         curriculo: curriculoTexto,
         vagas: vagas.map(v => ({
@@ -384,7 +384,7 @@ function LoginScreen({
   async function handleSubmit(e) {
     e.preventDefault();
     setErro("");
-    if (!supabase) {
+    if (!supabaseClient) {
       setErro("Backend ainda não conectado (Supabase pendente).");
       return;
     }
@@ -394,7 +394,7 @@ function LoginScreen({
       const {
         data,
         error
-      } = await supabase.from("usuarios").select("id, nome, email, papel").eq("email", email.trim().toLowerCase()).eq("senha_hash", hash).maybeSingle();
+      } = await supabaseClient.from("usuarios").select("id, nome, email, papel").eq("email", email.trim().toLowerCase()).eq("senha_hash", hash).maybeSingle();
       if (error) throw error;
       if (!data) {
         setErro("E-mail ou senha incorretos.");
@@ -507,15 +507,15 @@ function VagasView({
   }
   async function salvar(e) {
     e.preventDefault();
-    if (!supabase) {
+    if (!supabaseClient) {
       showToast("Backend ainda não conectado.");
       return;
     }
     if (editando) {
-      await supabase.from("vagas").update(form).eq("id", editando.id);
+      await supabaseClient.from("vagas").update(form).eq("id", editando.id);
       showToast("Vaga atualizada.");
     } else {
-      await supabase.from("vagas").insert(form);
+      await supabaseClient.from("vagas").insert(form);
       showToast("Vaga cadastrada.");
     }
     setModalAberto(false);
@@ -677,14 +677,14 @@ function NovoCandidatoModal({
     }
   }
   async function salvarCandidato() {
-    if (!supabase) {
+    if (!supabaseClient) {
       showToast("Backend ainda não conectado.");
       return;
     }
     const escolha = ranking.find(r => r.vaga_id === vagaEscolhida);
     const {
       error
-    } = await supabase.from("candidatos").insert({
+    } = await supabaseClient.from("candidatos").insert({
       nome,
       telefone,
       email,
@@ -796,11 +796,11 @@ function PipelineView({
 }) {
   const [modalAberto, setModalAberto] = useState(false);
   async function moverEtapa(candidato, novaEtapa) {
-    if (!supabase) {
+    if (!supabaseClient) {
       showToast("Backend ainda não conectado.");
       return;
     }
-    await supabase.from("candidatos").update({
+    await supabaseClient.from("candidatos").update({
       etapa_atual: novaEtapa
     }).eq("id", candidato.id);
     onRefresh();
@@ -874,14 +874,14 @@ function App() {
     setTimeout(() => setToastMsg(null), 3500);
   }
   const carregarDados = useCallback(async () => {
-    if (!supabase) return;
+    if (!supabaseClient) return;
     const [{
       data: v
     }, {
       data: c
-    }] = await Promise.all([supabase.from("vagas").select("*").order("created_at", {
+    }] = await Promise.all([supabaseClient.from("vagas").select("*").order("created_at", {
       ascending: false
-    }), supabase.from("candidatos").select("*").order("created_at", {
+    }), supabaseClient.from("candidatos").select("*").order("created_at", {
       ascending: false
     })]);
     setVagas(v || []);
@@ -926,7 +926,7 @@ function App() {
     onClick: logout
   }, "Sair"))), /*#__PURE__*/React.createElement("div", {
     className: "main"
-  }, !supabase && /*#__PURE__*/React.createElement("div", {
+  }, !supabaseClient && /*#__PURE__*/React.createElement("div", {
     className: "card",
     style: {
       marginBottom: 20,
