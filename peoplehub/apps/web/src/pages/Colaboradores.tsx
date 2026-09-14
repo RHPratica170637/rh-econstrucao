@@ -5,6 +5,7 @@ interface Departamento { id: string; nome: string; }
 interface Cargo { id: string; nome: string; }
 interface Colaborador {
   id: string;
+  matricula: string;
   nome: string;
   status: string;
   departamento: { nome: string } | null;
@@ -27,7 +28,7 @@ export default function Colaboradores({ empresaId }: { empresaId: string }) {
   const [salvando, setSalvando] = useState(false);
 
   const [form, setForm] = useState({
-    nome: "", cpf: "", departamento_id: "", cargo_id: "", data_admissao: "",
+    nome: "", departamento_id: "", cargo_id: "", data_admissao: "",
   });
 
   async function carregar() {
@@ -50,7 +51,7 @@ export default function Colaboradores({ empresaId }: { empresaId: string }) {
     try {
       await api.criarColaborador({ empresa_id: empresaId, ...form });
       setModalAberto(false);
-      setForm({ nome: "", cpf: "", departamento_id: "", cargo_id: "", data_admissao: "" });
+      setForm({ nome: "", departamento_id: "", cargo_id: "", data_admissao: "" });
       await carregar();
     } catch (err: any) {
       setErro(err.message || "Erro ao salvar");
@@ -72,11 +73,12 @@ export default function Colaboradores({ empresaId }: { empresaId: string }) {
       <div className="card" style={{ padding: 0 }}>
         <table>
           <thead>
-            <tr><th>Nome</th><th>Departamento</th><th>Cargo</th><th>Status</th><th>Admissão</th></tr>
+            <tr><th>Matrícula</th><th>Nome</th><th>Departamento</th><th>Cargo</th><th>Status</th><th>Admissão</th></tr>
           </thead>
           <tbody>
             {colaboradores.map((c) => (
               <tr key={c.id}>
+                <td style={{ fontFamily: "monospace", color: "var(--texto-dim)" }}>{c.matricula}</td>
                 <td>{c.nome}</td>
                 <td>{c.departamento?.nome || "—"}</td>
                 <td>{c.cargo?.nome || "—"}</td>
@@ -85,7 +87,7 @@ export default function Colaboradores({ empresaId }: { empresaId: string }) {
               </tr>
             ))}
             {colaboradores.length === 0 && (
-              <tr><td colSpan={5} style={{ textAlign: "center", padding: 30, color: "var(--texto-dim)" }}>
+              <tr><td colSpan={6} style={{ textAlign: "center", padding: 30, color: "var(--texto-dim)" }}>
                 Nenhum colaborador cadastrado ainda.
               </td></tr>
             )}
@@ -105,10 +107,9 @@ export default function Colaboradores({ empresaId }: { empresaId: string }) {
                 <label>Nome completo</label>
                 <input value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} required />
               </div>
-              <div className="field">
-                <label>CPF</label>
-                <input value={form.cpf} onChange={(e) => setForm({ ...form, cpf: e.target.value })} />
-              </div>
+              <p className="subtitle" style={{ marginTop: -8 }}>
+                CPF e dados sensíveis são preenchidos depois, na etapa de documentos da admissão.
+              </p>
               <div className="field">
                 <label>Departamento</label>
                 <select value={form.departamento_id} onChange={(e) => setForm({ ...form, departamento_id: e.target.value })}>
