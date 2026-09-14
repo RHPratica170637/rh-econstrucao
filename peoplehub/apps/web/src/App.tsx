@@ -2,6 +2,8 @@ import { useState } from "react";
 import Login from "./pages/Login";
 import Colaboradores from "./pages/Colaboradores";
 import Configuracoes from "./pages/Configuracoes";
+import Ponto from "./pages/Ponto";
+import AjustesPonto from "./pages/AjustesPonto";
 
 interface Usuario {
   id: string;
@@ -39,6 +41,12 @@ export default function App() {
           <div className={`item ${aba === "colaboradores" ? "active" : ""}`} onClick={() => setAba("colaboradores")}>
             Colaboradores
           </div>
+          <div className={`item ${aba === "ponto" ? "active" : ""}`} onClick={() => setAba("ponto")}>
+            Folha de ponto
+          </div>
+          <div className={`item ${aba === "ajustes" ? "active" : ""}`} onClick={() => setAba("ajustes")}>
+            Ajustes de ponto
+          </div>
           <div className={`item ${aba === "configuracoes" ? "active" : ""}`} onClick={() => setAba("configuracoes")}>
             Configurações
           </div>
@@ -51,6 +59,8 @@ export default function App() {
       </div>
       <div className="main">
         {aba === "colaboradores" && <Colaboradores empresaId={usuario.empresa_id} />}
+        {aba === "ponto" && <Ponto empresaId={usuario.empresa_id} />}
+        {aba === "ajustes" && <AjustesPonto empresaId={usuario.empresa_id} />}
         {aba === "configuracoes" && <Configuracoes empresaId={usuario.empresa_id} />}
       </div>
     </div>
