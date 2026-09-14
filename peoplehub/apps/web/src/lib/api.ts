@@ -16,6 +16,9 @@ export const api = {
   login: (email: string, senha: string) =>
     request("/auth/login", { method: "POST", body: JSON.stringify({ email, senha }) }),
 
+  esqueciSenha: (email: string) =>
+    request("/auth/esqueci-senha", { method: "POST", body: JSON.stringify({ email }) }),
+
   listarColaboradores: (empresaId: string) =>
     request(`/colaboradores?empresa_id=${empresaId}`),
 
