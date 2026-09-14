@@ -1,0 +1,124 @@
+// PeopleHub — Etapa 1: fundação (Empresa, Departamentos, Cargos, Colaboradores, Login, Admissão)
+// Espelha o schema já aplicado no Supabase (projeto peoplehub, sbmkwroxfohzchhavjvp)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Empresa {
+  id             String          @id @default(uuid())
+  nome           String
+  cnpj           String?
+  createdAt      DateTime        @default(now()) @map("created_at")
+  departamentos  Departamento[]
+  cargos         Cargo[]
+  colaboradores  Colaborador[]
+  usuarios       Usuario[]
+
+  @@map("empresas")
+}
+
+model Departamento {
+  id            String        @id @default(uuid())
+  empresaId     String        @map("empresa_id")
+  nome          String
+  createdAt     DateTime      @default(now()) @map("created_at")
+  empresa       Empresa       @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  colaboradores Colaborador[]
+
+  @@map("departamentos")
+}
+
+model Cargo {
+  id            String        @id @default(uuid())
+  empresaId     String        @map("empresa_id")
+  nome          String
+  nivel         String?
+  createdAt     DateTime      @default(now()) @map("created_at")
+  empresa       Empresa       @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  colaboradores Colaborador[]
+
+  @@map("cargos")
+}
+
+model Colaborador {
+  id                 String         @id @default(uuid())
+  empresaId          String         @map("empresa_id")
+  departamentoId     String?        @map("departamento_id")
+  cargoId            String?        @map("cargo_id")
+  gestorId           String?        @map("gestor_id")
+  nome               String
+  cpf                String?
+  pisPasep           String?        @map("pis_pasep")
+  dataNascimento     DateTime?      @map("data_nascimento") @db.Date
+  dataAdmissao       DateTime?      @map("data_admissao") @db.Date
+  endereco           Json?
+  dadosBancarios     Json?          @map("dados_bancarios")
+  contatoEmergencia  Json?          @map("contato_emergencia")
+  status             String         @default("admissao_pendente") // admissao_pendente | ativo | desligado
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @default(now()) @map("updated_at")
+
+  empresa            Empresa        @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  departamento       Departamento?  @relation(fields: [departamentoId], references: [id])
+  cargo              Cargo?         @relation(fields: [cargoId], references: [id])
+  gestor             Colaborador?   @relation("GestorEquipe", fields: [gestorId], references: [id])
+  equipe             Colaborador[]  @relation("GestorEquipe")
+  usuario            Usuario?
+  admissao           Admissao?
+  desligamento       Desligamento?
+
+  @@map("colaboradores")
+}
+
+model Usuario {
+  id             String       @id @default(uuid())
+  empresaId      String       @map("empresa_id")
+  colaboradorId  String?      @unique @map("colaborador_id")
+  nome           String
+  email          String       @unique
+  senhaHash      String       @map("senha_hash")
+  perfil         String       @default("colaborador") // admin_rh | gestor | colaborador
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  empresa        Empresa      @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  colaborador    Colaborador? @relation(fields: [colaboradorId], references: [id])
+
+  @@map("usuarios")
+}
+
+model Admissao {
+  id                  String       @id @default(uuid())
+  colaboradorId       String       @unique @map("colaborador_id")
+  etapaAtual          String       @default("dados_pessoais") @map("etapa_atual")
+    // dados_pessoais | documentos | contrato_assinado | aso | conta_criada
+  documentos          Json?
+  contratoAssinadoEm  DateTime?    @map("contrato_assinado_em")
+  asoAprovado         Boolean      @default(false) @map("aso_aprovado")
+  asoAprovadoEm       DateTime?    @map("aso_aprovado_em")
+  createdAt           DateTime     @default(now()) @map("created_at")
+  updatedAt           DateTime     @default(now()) @map("updated_at")
+
+  colaborador         Colaborador  @relation(fields: [colaboradorId], references: [id], onDelete: Cascade)
+
+  @@map("admissoes")
+}
+
+model Desligamento {
+  id             String      @id @default(uuid())
+  colaboradorId  String      @unique @map("colaborador_id")
+  motivo         String
+  data           DateTime    @db.Date
+  trctUrl        String?     @map("trct_url")
+  createdAt      DateTime    @default(now()) @map("created_at")
+
+  colaborador    Colaborador @relation(fields: [colaboradorId], references: [id], onDelete: Cascade)
+
+  @@map("desligamentos")
+}
