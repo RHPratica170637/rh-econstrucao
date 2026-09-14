@@ -34,6 +34,15 @@ module.exports = withCors(async (req, res) => {
       return;
     }
 
+    // Campos de chave estrangeira opcionais chegam como "" quando não selecionados no front —
+    // o Postgres rejeita "" como uuid, então normalizamos para null aqui.
+    const normalizarUuid = (v) => (v === "" || v === undefined ? null : v);
+    const departamentoIdNorm = normalizarUuid(departamento_id);
+    const cargoIdNorm = normalizarUuid(cargo_id);
+    const gestorIdNorm = normalizarUuid(gestor_id);
+    const dataAdmissaoNorm = data_admissao === "" ? null : data_admissao;
+    const dataNascimentoNorm = data_nascimento === "" ? null : data_nascimento;
+
     // Matrícula sequencial por empresa (001, 002, ...) -- identificador do dia a dia, sem dado sensível
     const { data: ultimo, error: seqErr } = await supabase
       .from("colaboradores")
@@ -49,8 +58,8 @@ module.exports = withCors(async (req, res) => {
     const { data: colaborador, error: colErr } = await supabase
       .from("colaboradores")
       .insert({
-        empresa_id, departamento_id, cargo_id, gestor_id,
-        nome, matricula, pis_pasep, data_nascimento, data_admissao,
+        empresa_id, departamento_id: departamentoIdNorm, cargo_id: cargoIdNorm, gestor_id: gestorIdNorm,
+        nome, matricula, pis_pasep, data_nascimento: dataNascimentoNorm, data_admissao: dataAdmissaoNorm,
         endereco, dados_bancarios, contato_emergencia,
         status: "admissao_pendente",
       })
