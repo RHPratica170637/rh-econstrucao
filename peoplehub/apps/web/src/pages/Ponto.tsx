@@ -71,7 +71,7 @@ export default function Ponto({ empresaId }: { empresaId: string }) {
             rows={5}
             value={csvTexto}
             onChange={(e) => setCsvTexto(e.target.value)}
-            placeholder="matricula,data,entrada,saida_almoco,retorno_almoco,saida,entrada_extra,saida_extra&#10;001,2026-09-01,08:00,12:00,13:00,17:00,,"
+            placeholder={"matricula,data,entrada,saida_almoco,retorno_almoco,saida,entrada_extra,saida_extra\n001,2026-09-01,08:00,12:00,13:00,17:00,,"}
             style={{ fontFamily: "monospace", fontSize: 12 }}
           />
           <button className="btn btn-primary" style={{ marginTop: 10 }} disabled={importando || !csvTexto.trim()}>
