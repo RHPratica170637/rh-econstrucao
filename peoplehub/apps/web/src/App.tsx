@@ -38,7 +38,7 @@ export default function App() {
       <div className="sidebar">
         <div className="brand">
           PeopleHub
-          <div className="sub">Etapa 1 — Fundação</div>
+          <div className="sub">gestão de pessoas</div>
         </div>
         <nav>
           <div className={`item ${aba === "colaboradores" ? "active" : ""}`} onClick={() => setAba("colaboradores")}>
