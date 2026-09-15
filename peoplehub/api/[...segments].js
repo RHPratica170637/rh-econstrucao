@@ -33,7 +33,10 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const partes = Array.isArray(req.query.segments) ? req.query.segments : [req.query.segments].filter(Boolean);
+  // Lê o caminho direto de req.url em vez de depender de req.query.segments --
+  // mais confiável entre diferentes formas de invocar a function no Vercel.
+  const caminho = (req.url || "").split("?")[0]; // remove querystring
+  const partes = caminho.replace(/^\/api\//, "").split("/").filter(Boolean);
   const [resource, ...resto] = partes;
 
   const handler = ROTAS[resource];

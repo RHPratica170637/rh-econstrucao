@@ -8,6 +8,8 @@ export default function Configuracoes({ empresaId }: { empresaId: string }) {
   const [cargos, setCargos] = useState<Item[]>([]);
   const [novoDepto, setNovoDepto] = useState("");
   const [novoCargo, setNovoCargo] = useState("");
+  const [erroDepto, setErroDepto] = useState("");
+  const [erroCargo, setErroCargo] = useState("");
 
   async function carregar() {
     const [d, c] = await Promise.all([
@@ -22,18 +24,28 @@ export default function Configuracoes({ empresaId }: { empresaId: string }) {
 
   async function addDepto(e: FormEvent) {
     e.preventDefault();
+    setErroDepto("");
     if (!novoDepto.trim()) return;
-    await api.criarDepartamento(empresaId, novoDepto.trim());
-    setNovoDepto("");
-    carregar();
+    try {
+      await api.criarDepartamento(empresaId, novoDepto.trim());
+      setNovoDepto("");
+      carregar();
+    } catch (err: any) {
+      setErroDepto(err.message || "Erro ao cadastrar departamento");
+    }
   }
 
   async function addCargo(e: FormEvent) {
     e.preventDefault();
+    setErroCargo("");
     if (!novoCargo.trim()) return;
-    await api.criarCargo(empresaId, novoCargo.trim());
-    setNovoCargo("");
-    carregar();
+    try {
+      await api.criarCargo(empresaId, novoCargo.trim());
+      setNovoCargo("");
+      carregar();
+    } catch (err: any) {
+      setErroCargo(err.message || "Erro ao cadastrar cargo");
+    }
   }
 
   return (
@@ -51,6 +63,7 @@ export default function Configuracoes({ empresaId }: { empresaId: string }) {
           <ul style={{ paddingLeft: 18, fontSize: 14 }}>
             {departamentos.map((d) => <li key={d.id}>{d.nome}</li>)}
           </ul>
+          {erroDepto && <div className="error-msg">{erroDepto}</div>}
         </div>
 
         <div className="card" style={{ flex: 1 }}>
@@ -62,6 +75,7 @@ export default function Configuracoes({ empresaId }: { empresaId: string }) {
           <ul style={{ paddingLeft: 18, fontSize: 14 }}>
             {cargos.map((c) => <li key={c.id}>{c.nome}</li>)}
           </ul>
+          {erroCargo && <div className="error-msg">{erroCargo}</div>}
         </div>
       </div>
     </div>
