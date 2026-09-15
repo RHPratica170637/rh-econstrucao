@@ -4,6 +4,9 @@ import Colaboradores from "./pages/Colaboradores";
 import Configuracoes from "./pages/Configuracoes";
 import Ponto from "./pages/Ponto";
 import AjustesPonto from "./pages/AjustesPonto";
+import Holerites from "./pages/Holerites";
+import Atestados from "./pages/Atestados";
+import Ferias from "./pages/Ferias";
 
 interface Usuario {
   id: string;
@@ -47,6 +50,15 @@ export default function App() {
           <div className={`item ${aba === "ajustes" ? "active" : ""}`} onClick={() => setAba("ajustes")}>
             Ajustes de ponto
           </div>
+          <div className={`item ${aba === "holerites" ? "active" : ""}`} onClick={() => setAba("holerites")}>
+            Holerites
+          </div>
+          <div className={`item ${aba === "atestados" ? "active" : ""}`} onClick={() => setAba("atestados")}>
+            Atestados
+          </div>
+          <div className={`item ${aba === "ferias" ? "active" : ""}`} onClick={() => setAba("ferias")}>
+            Férias
+          </div>
           <div className={`item ${aba === "configuracoes" ? "active" : ""}`} onClick={() => setAba("configuracoes")}>
             Configurações
           </div>
@@ -61,6 +73,9 @@ export default function App() {
         {aba === "colaboradores" && <Colaboradores empresaId={usuario.empresa_id} />}
         {aba === "ponto" && <Ponto empresaId={usuario.empresa_id} />}
         {aba === "ajustes" && <AjustesPonto empresaId={usuario.empresa_id} />}
+        {aba === "holerites" && <Holerites empresaId={usuario.empresa_id} />}
+        {aba === "atestados" && <Atestados empresaId={usuario.empresa_id} />}
+        {aba === "ferias" && <Ferias empresaId={usuario.empresa_id} />}
         {aba === "configuracoes" && <Configuracoes empresaId={usuario.empresa_id} />}
       </div>
     </div>
