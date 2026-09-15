@@ -1,4 +1,4 @@
-import { useEffect, useState, FormEvent } from "react";
+import { useEffect, useState, useRef, FormEvent } from "react";
 import { api } from "../lib/api";
 
 interface Colaborador { id: string; matricula: string; nome: string; }
@@ -19,8 +19,10 @@ export default function Ponto({ empresaId }: { empresaId: string }) {
   const [mes, setMes] = useState(mesAtual());
   const [registros, setRegistros] = useState<RegistroPonto[]>([]);
   const [csvTexto, setCsvTexto] = useState("");
+  const [arquivoNome, setArquivoNome] = useState("");
   const [resultadoImport, setResultadoImport] = useState<{ importados: number; erros: string[] } | null>(null);
   const [importando, setImportando] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     api.listarColaboradores(empresaId).then((r) => {
@@ -35,6 +37,13 @@ export default function Ponto({ empresaId }: { empresaId: string }) {
     }
   }, [colaboradorId, mes]);
 
+  async function handleArquivo(file: File) {
+    setArquivoNome(file.name);
+    const texto = await file.text();
+    setCsvTexto(texto);
+    setResultadoImport(null);
+  }
+
   async function handleImportar(e: FormEvent) {
     e.preventDefault();
     setImportando(true);
@@ -43,6 +52,8 @@ export default function Ponto({ empresaId }: { empresaId: string }) {
       const resp = await api.importarPontoCsv(empresaId, csvTexto);
       setResultadoImport(resp);
       setCsvTexto("");
+      setArquivoNome("");
+      if (fileInputRef.current) fileInputRef.current.value = "";
       if (colaboradorId) api.listarPonto(colaboradorId, mes).then((r) => setRegistros(r.registros));
     } catch (err: any) {
       setResultadoImport({ importados: 0, erros: [err.message] });
@@ -67,12 +78,22 @@ export default function Ponto({ empresaId }: { empresaId: string }) {
           <br />XLSX e AFD ainda não são suportados — só CSV por enquanto.
         </p>
         <form onSubmit={handleImportar}>
-          <textarea
-            rows={5}
-            value={csvTexto}
-            onChange={(e) => setCsvTexto(e.target.value)}
-            placeholder={"matricula,data,entrada,saida_almoco,retorno_almoco,saida,entrada_extra,saida_extra\n001,2026-09-01,08:00,12:00,13:00,17:00,,"}
-            style={{ fontFamily: "monospace", fontSize: 12 }}
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            style={{
+              border: "1.5px dashed var(--border)", borderRadius: 8, padding: 24, textAlign: "center",
+              cursor: "pointer", fontSize: 13, color: arquivoNome ? "var(--texto)" : "var(--texto-dim)",
+              borderColor: arquivoNome ? "var(--sucesso)" : "var(--border)",
+            }}
+          >
+            {arquivoNome ? `✓ ${arquivoNome} (${csvTexto.split(/\r?\n/).filter(Boolean).length - 1} linha(s) de dados)` : "Clique para selecionar o arquivo .csv"}
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv,text/csv"
+            style={{ display: "none" }}
+            onChange={(e) => e.target.files?.[0] && handleArquivo(e.target.files[0])}
           />
           <button className="btn btn-primary" style={{ marginTop: 10 }} disabled={importando || !csvTexto.trim()}>
             {importando ? "Importando..." : "Importar"}
