@@ -27,6 +27,9 @@ export const api = {
 
   buscarColaborador: (id: string) => request(`/colaboradores/${id}`),
 
+  atualizarColaborador: (id: string, payload: Record<string, unknown>) =>
+    request(`/colaboradores/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
+
   listarDepartamentos: (empresaId: string) =>
     request(`/departamentos?empresa_id=${empresaId}`),
 

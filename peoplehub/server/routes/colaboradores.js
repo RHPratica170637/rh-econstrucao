@@ -87,7 +87,13 @@ module.exports = async function handle(req, res, { supabase, segments }) {
   }
 
   if (req.method === "PUT") {
+    const normalizarUuid = (v) => (v === "" ? null : v);
     const updates = { ...req.body, updated_at: new Date().toISOString() };
+    if ("departamento_id" in updates) updates.departamento_id = normalizarUuid(updates.departamento_id);
+    if ("cargo_id" in updates) updates.cargo_id = normalizarUuid(updates.cargo_id);
+    if ("gestor_id" in updates) updates.gestor_id = normalizarUuid(updates.gestor_id);
+    if ("data_admissao" in updates && updates.data_admissao === "") updates.data_admissao = null;
+    if ("data_nascimento" in updates && updates.data_nascimento === "") updates.data_nascimento = null;
     delete updates.id;
     const { data, error } = await supabase.from("colaboradores").update(updates).eq("id", id).select().single();
     if (error) throw error;
